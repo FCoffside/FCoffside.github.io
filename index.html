@@ -281,7 +281,7 @@ html, body {
   const elAdded     = document.getElementById('el-added');
   const elPeriod    = document.getElementById('el-period');
 
-  let prevHS = -1, prevAS = -1;
+  let prevHS = -1, prevAS = -1, prevAT = -1;
   let localMs = 0, localRunning = false, localBase = 0;
 
   function fmt(ms) {
@@ -322,14 +322,17 @@ html, body {
     localBase = performance.now();
 
     const at = parseInt(s.addedTime) || 0;
-    if (at > 0) {
-      elAdded.textContent = '+' + at;
-      elAdded.style.display = 'inline-flex';
-      elAdded.style.animation = 'none';
-      void elAdded.offsetWidth;
-      elAdded.style.animation = '';
-    } else {
-      elAdded.style.display = 'none';
+    if (at !== prevAT) {
+      prevAT = at;
+      if (at > 0) {
+        elAdded.textContent = '+' + at;
+        elAdded.style.animation = 'none';
+        elAdded.style.display = 'inline-flex';
+        void elAdded.offsetWidth;
+        elAdded.style.animation = '';
+      } else {
+        elAdded.style.display = 'none';
+      }
     }
 
     const st = s.matchState || '1ST';
