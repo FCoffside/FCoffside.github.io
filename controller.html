@@ -3,133 +3,109 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Overlay Controller</title>
+<title>Controller</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
-/* ============================================================
-   RESET
-   ============================================================ */
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ============================================================
-   DESIGN TOKENS
-   ============================================================ */
 :root {
-  --bg:       #0d0d0f;
-  --srf:      #16181c;
-  --srf2:     #1d2025;
-  --bd:       rgba(255,255,255,0.07);
-  --bd2:      rgba(255,255,255,0.13);
-  --tx:       #efefef;
-  --tx2:      rgba(255,255,255,0.50);
-  --tx3:      rgba(255,255,255,0.28);
-  --accent:   #f5c842;
-  --green:    #1c7a3f;
-  --green2:   #23a050;
-  --red:      #b01e2e;
-  --red2:     #d02535;
-  --r:        3px;
-  --f:        'Roboto Condensed', sans-serif;
-  --fn:       'Oswald', sans-serif;
+  --bg:    #0c0e12;
+  --s1:    #14161b;
+  --s2:    #1b1e25;
+  --s3:    #21242d;
+  --bd:    rgba(255,255,255,.07);
+  --bd2:   rgba(255,255,255,.13);
+  --tx:    #f0f0f0;
+  --tx2:   rgba(255,255,255,.50);
+  --tx3:   rgba(255,255,255,.26);
+  --gold:  #f5c518;
+  --fn:    'Oswald', sans-serif;
+  --fb:    'Roboto Condensed', sans-serif;
+  --r:     3px;
 }
 
-/* ============================================================
-   BASE
-   ============================================================ */
 html { font-size: 13px; }
+
 body {
   background: var(--bg);
   color: var(--tx);
-  font-family: var(--f);
-  height: 100vh;
+  font-family: var(--fb);
+  min-height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.08) transparent;
+  scrollbar-color: rgba(255,255,255,.08) transparent;
 }
-body::-webkit-scrollbar { width: 3px; }
-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+body::-webkit-scrollbar { width: 4px; }
+body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 2px; }
 
-/* ============================================================
-   STICKY HEADER
-   ============================================================ */
-.hd {
-  position: sticky; top: 0; z-index: 20;
+/* ── Header ── */
+header {
+  position: sticky; top: 0; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 14px;
-  background: var(--srf);
+  background: var(--s1);
   border-bottom: 1px solid var(--bd);
 }
 .hd-title {
   font-family: var(--fn);
-  font-size: 15px; font-weight: 600;
-  letter-spacing: 2px;
-  color: var(--tx2);
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 2.5px; color: var(--tx2);
   text-transform: uppercase;
 }
-.hd-title em { color: var(--accent); font-style: normal; }
-
-/* Sync status */
-.sync-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--tx3); }
+.hd-title b { color: var(--gold); font-weight: 700; }
+.sync-wrap { display: flex; align-items: center; gap: 5px; }
 .sync-dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: var(--green2);
-  box-shadow: 0 0 5px rgba(35,160,80,0.5);
+  background: #22a050;
+  box-shadow: 0 0 5px rgba(34,160,80,.5);
+  flex-shrink: 0;
 }
-.sync-dot.flash { animation: sFlash 0.32s ease; }
-@keyframes sFlash {
-  0%   { background: #fff; box-shadow: 0 0 10px #fff; }
-  100% { background: var(--green2); box-shadow: 0 0 5px rgba(35,160,80,0.5); }
-}
+.sync-dot.fl { animation: sdfl .3s ease; }
+@keyframes sdfl { 0%{background:#fff;box-shadow:0 0 10px #fff} 100%{background:#22a050;box-shadow:0 0 5px rgba(34,160,80,.5)} }
+.sync-lbl { font-size: 10px; color: var(--tx3); letter-spacing: .5px; }
 
-/* ============================================================
-   LAYOUT
-   ============================================================ */
-.ctrl-body {
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
+/* ── Body ── */
+main { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
 
-/* ============================================================
-   CARD
-   ============================================================ */
+/* ── Card ── */
 .card {
-  background: var(--srf);
+  background: var(--s1);
   border: 1px solid var(--bd);
   border-radius: var(--r);
   overflow: hidden;
 }
 .card-hd {
-  padding: 7px 12px;
-  background: var(--srf2);
+  padding: 6px 12px;
+  background: var(--s2);
   border-bottom: 1px solid var(--bd);
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--tx3);
+  font-size: 8px; font-weight: 700;
+  letter-spacing: 2.2px; color: var(--tx3);
   text-transform: uppercase;
 }
-.card-body {
-  padding: 11px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
+.card-body { padding: 11px 12px; display: flex; flex-direction: column; gap: 9px; }
 
-/* ============================================================
-   LAYOUT HELPERS
-   ============================================================ */
-.row  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* ── Layout helpers ── */
+.row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.row-tight { display: flex; align-items: center; gap: 5px; }
 .col2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.lbl  { font-size: 11px; color: var(--tx2); white-space: nowrap; min-width: 56px; }
+.lbl { font-size: 10px; color: var(--tx2); white-space: nowrap; min-width: 54px; }
 
-/* ============================================================
-   INPUTS
-   ============================================================ */
-input[type=text],
-input[type=number] {
+/* ── Team columns ── */
+.tcol { display: flex; flex-direction: column; gap: 6px; }
+.tcol-hd {
+  font-size: 8px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding-bottom: 5px; border-bottom: 2px solid transparent;
+}
+.tcol.home .tcol-hd { color: #ff8096; border-color: #c8102e; }
+.tcol.away .tcol-hd { color: #80aaff; border-color: #003087; }
+.color-row { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--tx3); }
+
+/* ── Inputs ── */
+input[type=text] {
   background: var(--bg);
   border: 1px solid var(--bd2);
   border-radius: var(--r);
@@ -137,226 +113,156 @@ input[type=number] {
   font-family: var(--fn);
   font-size: 14px; font-weight: 600;
   letter-spacing: 1px;
-  padding: 6px 9px;
+  padding: 6px 8px;
   outline: none;
-  transition: border-color .12s;
   text-transform: uppercase;
   width: 100%;
+  transition: border-color .12s;
 }
-input[type=text]:focus,
-input[type=number]:focus { border-color: rgba(255,255,255,0.28); }
+input[type=text]:focus { border-color: rgba(255,255,255,.30); }
 
 input[type=color] {
   background: var(--bg);
   border: 1px solid var(--bd2);
   border-radius: var(--r);
-  width: 36px; height: 30px;
-  cursor: pointer; padding: 2px;
-  flex-shrink: 0;
+  width: 34px; height: 28px;
+  padding: 2px; cursor: pointer; flex-shrink: 0;
 }
 
-/* ============================================================
-   TEAM COLUMNS
-   ============================================================ */
-.team-col { display: flex; flex-direction: column; gap: 7px; }
-.team-col-lbl {
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  padding-bottom: 5px;
-  border-bottom: 2px solid transparent;
-}
-.tc-home .team-col-lbl { color: #ff8096; border-color: #c8102e; }
-.tc-away .team-col-lbl { color: #7aaeff; border-color: #003087; }
-
-.color-row {
-  display: flex; align-items: center;
-  gap: 7px; font-size: 11px; color: var(--tx2);
-}
-
-/* ============================================================
-   SCORE SECTION
-   ============================================================ */
-.score-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.score-unit { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.score-val {
+/* ── Score display ── */
+.score-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.score-unit { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.score-big {
   font-family: var(--fn);
-  font-size: 48px; font-weight: 700;
-  color: #fff;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
+  font-size: 52px; font-weight: 700;
+  color: #fff; font-variant-numeric: tabular-nums; line-height: 1;
 }
-.score-lbl {
-  font-size: 9px; letter-spacing: 1.8px;
-  color: var(--tx3); text-transform: uppercase;
-}
+.score-sub { font-size: 8px; letter-spacing: 2px; color: var(--tx3); text-transform: uppercase; }
 .btn-pair { display: flex; align-items: center; gap: 8px; }
 
-/* ============================================================
-   CLOCK DISPLAY (in controller)
-   ============================================================ */
-.clock-display {
+/* ── Clock display ── */
+.clock-big {
   font-family: var(--fn);
-  font-size: 48px; font-weight: 600;
-  color: #fff;
-  font-variant-numeric: tabular-nums;
+  font-size: 52px; font-weight: 600;
+  color: #fff; font-variant-numeric: tabular-nums;
   letter-spacing: 1px; line-height: 1;
-  text-align: center;
-  padding: 4px 0 6px;
+  text-align: center; padding: 2px 0 6px;
 }
 
-/* ============================================================
-   BUTTONS
-   ============================================================ */
+/* ── Buttons ── */
 .btn {
-  font-family: var(--f);
-  font-size: 12px; font-weight: 700;
-  letter-spacing: 0.5px;
-  border: none;
-  border-radius: var(--r);
-  cursor: pointer;
-  padding: 8px 13px;
-  transition: background .12s, transform .08s;
-  text-transform: uppercase;
-  line-height: 1;
-  white-space: nowrap;
+  font-family: var(--fb);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .3px;
+  border: none; border-radius: var(--r);
+  cursor: pointer; padding: 7px 12px;
+  transition: background .1s, transform .07s;
+  text-transform: uppercase; line-height: 1; white-space: nowrap;
 }
-.btn:active { transform: scale(0.94); }
+.btn:active { transform: scale(0.93); }
 
-/* Round score buttons */
-.btn-round {
-  width: 34px; height: 34px;
-  padding: 0; border-radius: 50%;
+.btn-circ {
+  width: 34px; height: 34px; padding: 0; border-radius: 50%;
   font-size: 20px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.btn-minus { background: rgba(176,30,46,.18); color: #ff8096; border: 1px solid rgba(176,30,46,.30); }
-.btn-minus:hover { background: rgba(176,30,46,.42); color: #fff; }
-.btn-plus  { background: rgba(28,122,63,.18);  color: #5cdb80; border: 1px solid rgba(28,122,63,.30); }
-.btn-plus:hover  { background: rgba(28,122,63,.42);  color: #fff; }
 
-/* Timer action buttons */
-.btn-go   { background: var(--green);             color: #fff; }
-.btn-go:hover   { background: var(--green2); }
-.btn-hold { background: rgba(245,200,66,.14); color: var(--accent); border: 1px solid rgba(245,200,66,.28); }
-.btn-hold:hover { background: rgba(245,200,66,.26); }
-.btn-stop { background: rgba(176,30,46,.65);      color: #fff; }
-.btn-stop:hover { background: var(--red2); }
-.btn-ghost { background: rgba(255,255,255,.05); color: var(--tx2); border: 1px solid var(--bd); }
-.btn-ghost:hover { background: rgba(255,255,255,.10); color: var(--tx); }
+.b-minus { background: rgba(200,16,46,.18); color: #ff8096; border: 1px solid rgba(200,16,46,.28); }
+.b-minus:hover { background: rgba(200,16,46,.40); color: #fff; }
+.b-plus  { background: rgba(28,122,63,.18);  color: #5cdb80; border: 1px solid rgba(28,122,63,.28); }
+.b-plus:hover  { background: rgba(28,122,63,.40); color: #fff; }
 
-/* Match state buttons */
+.b-go   { background: #1a7838; color: #fff; }
+.b-go:hover   { background: #22a050; }
+.b-hold { background: rgba(245,197,24,.13); color: var(--gold); border: 1px solid rgba(245,197,24,.28); }
+.b-hold:hover { background: rgba(245,197,24,.24); }
+.b-stop { background: rgba(176,30,46,.60); color: #fff; }
+.b-stop:hover { background: #d02030; }
+.b-ghost { background: rgba(255,255,255,.05); color: var(--tx2); border: 1px solid var(--bd); }
+.b-ghost:hover { background: rgba(255,255,255,.10); color: var(--tx); }
+
+/* ── Match state buttons ── */
 .state-row { gap: 5px; flex-wrap: nowrap; }
-.btn-state {
+.b-state {
   flex: 1; padding: 7px 4px; font-size: 12px;
-  background: var(--srf2); color: var(--tx2);
-  border: 1px solid var(--bd);
+  background: var(--s3); color: var(--tx3); border: 1px solid var(--bd);
 }
-.btn-state:hover { background: rgba(255,255,255,.07); color: var(--tx); }
-.btn-state.on {
-  background: rgba(245,200,66,.13);
-  color: var(--accent);
-  border-color: rgba(245,200,66,.30);
-}
+.b-state:hover { background: rgba(255,255,255,.07); color: var(--tx2); }
+.b-state.on { background: rgba(245,197,24,.12); color: var(--gold); border-color: rgba(245,197,24,.30); }
 
-/* ============================================================
-   ADDED TIME SLIDER
-   ============================================================ */
-.slider-wrap { width: 100%; display: flex; flex-direction: column; gap: 5px; }
-
+/* ── Added time slider ── */
+.slider-wrap { width: 100%; display: flex; flex-direction: column; gap: 6px; }
 input[type=range] {
   -webkit-appearance: none;
   width: 100%; height: 4px;
   background: rgba(255,255,255,.10);
-  border-radius: 10px;
-  outline: none; cursor: pointer;
+  border-radius: 10px; outline: none; cursor: pointer;
 }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 17px; height: 17px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 5px rgba(245,200,66,.38);
-  cursor: pointer;
-  transition: transform .1s;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 5px rgba(245,197,24,.35);
+  cursor: pointer; transition: transform .1s;
 }
-input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.18); }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 input[type=range]::-moz-range-thumb {
-  width: 17px; height: 17px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: none; cursor: pointer;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--gold); border: none; cursor: pointer;
 }
 .slider-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--tx3); }
-#added-readout { color: var(--accent); font-weight: 700; }
+#added-val { color: var(--gold); font-weight: 700; }
 
-/* ============================================================
-   SET-TIME INPUT WIDTH
-   ============================================================ */
-#input-settime { width: 84px; flex-shrink: 0; }
+/* ── Set time input ── */
+#in-settime { width: 80px; flex-shrink: 0; }
 
-/* ============================================================
-   KEYBOARD HINTS
-   ============================================================ */
-.key-grid {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 5px 11px;
-  align-items: center;
-}
+/* ── Keyboard hints ── */
+.key-grid { display: grid; grid-template-columns: auto 1fr; gap: 5px 10px; align-items: center; }
 .kbd {
   display: inline-block;
-  background: var(--srf2);
-  border: 1px solid var(--bd2);
-  border-radius: 2px;
-  padding: 2px 7px;
-  font-size: 11px; font-weight: 700;
-  color: var(--tx2); letter-spacing: .5px;
-  font-family: var(--fn); white-space: nowrap;
+  background: var(--s3); border: 1px solid var(--bd2); border-radius: 2px;
+  padding: 2px 7px; font-family: var(--fn); font-size: 10px; font-weight: 600;
+  color: var(--tx2); letter-spacing: .5px; white-space: nowrap;
 }
-.key-grid span:not(.kbd) { font-size: 11px; color: var(--tx3); }
+.key-grid span:not(.kbd) { font-size: 10px; color: var(--tx3); }
 
-/* ============================================================
-   FOOTER
-   ============================================================ */
-.ctrl-footer {
-  padding: 9px 14px;
-  text-align: center;
-  font-size: 10px; color: var(--tx3);
+/* ── Footer ── */
+footer {
+  padding: 8px 14px; text-align: center;
+  font-size: 9px; color: var(--tx3);
   border-top: 1px solid var(--bd);
+  margin-top: 2px;
 }
 </style>
 </head>
 <body>
 
-<!-- ── Sticky header ── -->
-<div class="hd">
-  <span class="hd-title">Football <em>Control</em></span>
-  <div class="sync-row">
+<header>
+  <span class="hd-title">FOOTBALL <b>CTRL</b></span>
+  <div class="sync-wrap">
     <div class="sync-dot" id="sync-dot"></div>
-    <span>Synced</span>
+    <span class="sync-lbl">LIVE</span>
   </div>
-</div>
+</header>
 
-<div class="ctrl-body">
+<main>
 
-  <!-- ── TEAMS ── -->
+  <!-- TEAMS -->
   <div class="card">
     <div class="card-hd">Teams</div>
     <div class="card-body">
       <div class="col2">
-        <div class="team-col tc-home">
-          <div class="team-col-lbl">Home</div>
-          <input type="text" id="in-home-name" value="ARS" maxlength="8" placeholder="HOME"/>
+        <div class="tcol home">
+          <div class="tcol-hd">Home</div>
+          <input type="text" id="in-home" value="ARS" maxlength="8" placeholder="HOME"/>
           <div class="color-row">
             <input type="color" id="in-home-color" value="#c8102e"/>
             <span>Kit color</span>
           </div>
         </div>
-        <div class="team-col tc-away">
-          <div class="team-col-lbl">Away</div>
-          <input type="text" id="in-away-name" value="MCI" maxlength="8" placeholder="AWAY"/>
+        <div class="tcol away">
+          <div class="tcol-hd">Away</div>
+          <input type="text" id="in-away" value="MCI" maxlength="8" placeholder="AWAY"/>
           <div class="color-row">
             <input type="color" id="in-away-color" value="#003087"/>
             <span>Kit color</span>
@@ -366,62 +272,54 @@ input[type=range]::-moz-range-thumb {
     </div>
   </div>
 
-  <!-- ── SCORE ── -->
+  <!-- SCORE -->
   <div class="card">
     <div class="card-hd">Score</div>
     <div class="card-body">
       <div class="score-pair">
-
         <div class="score-unit">
           <div class="btn-pair">
-            <button class="btn btn-round btn-minus" data-team="home" data-d="-1">−</button>
-            <div class="score-val" id="ctrl-hs">0</div>
-            <button class="btn btn-round btn-plus"  data-team="home" data-d="1">+</button>
+            <button class="btn btn-circ b-minus" data-team="home" data-d="-1">−</button>
+            <div class="score-big" id="d-hs">0</div>
+            <button class="btn btn-circ b-plus"  data-team="home" data-d="1">+</button>
           </div>
-          <div class="score-lbl">Home</div>
+          <div class="score-sub">HOME</div>
         </div>
-
         <div class="score-unit">
           <div class="btn-pair">
-            <button class="btn btn-round btn-minus" data-team="away" data-d="-1">−</button>
-            <div class="score-val" id="ctrl-as">0</div>
-            <button class="btn btn-round btn-plus"  data-team="away" data-d="1">+</button>
+            <button class="btn btn-circ b-minus" data-team="away" data-d="-1">−</button>
+            <div class="score-big" id="d-as">0</div>
+            <button class="btn btn-circ b-plus"  data-team="away" data-d="1">+</button>
           </div>
-          <div class="score-lbl">Away</div>
+          <div class="score-sub">AWAY</div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- ── TIMER ── -->
+  <!-- TIMER -->
   <div class="card">
     <div class="card-hd">Match Timer</div>
     <div class="card-body">
-
-      <div class="clock-display" id="ctrl-clock">00:00</div>
-
+      <div class="clock-big" id="d-clock">00:00</div>
       <div class="row">
-        <button class="btn btn-go"   id="btn-start">▶ Start</button>
-        <button class="btn btn-hold" id="btn-pause" style="opacity:.4">⏸ Pause</button>
-        <button class="btn btn-stop" id="btn-reset">↺ Reset</button>
+        <button class="btn b-go"   id="btn-start">▶ Start</button>
+        <button class="btn b-hold" id="btn-pause" style="opacity:.4">⏸ Pause</button>
+        <button class="btn b-stop" id="btn-reset">↺ Reset</button>
       </div>
-
       <div class="row">
-        <button class="btn btn-ghost" id="btn-m10">− 10s</button>
-        <button class="btn btn-ghost" id="btn-p10">+ 10s</button>
+        <button class="btn b-ghost" id="btn-m10">− 10s</button>
+        <button class="btn b-ghost" id="btn-p10">+ 10s</button>
       </div>
-
       <div class="row">
         <span class="lbl">Set time</span>
-        <input type="text" id="input-settime" placeholder="45:00" maxlength="6"/>
-        <button class="btn btn-ghost" id="btn-set">Set</button>
+        <input type="text" id="in-settime" placeholder="45:00" maxlength="6"/>
+        <button class="btn b-ghost" id="btn-set">Set</button>
       </div>
-
     </div>
   </div>
 
-  <!-- ── ADDED TIME ── -->
+  <!-- ADDED TIME -->
   <div class="card">
     <div class="card-hd">Added Time</div>
     <div class="card-body">
@@ -429,28 +327,28 @@ input[type=range]::-moz-range-thumb {
         <input type="range" id="slider-added" min="0" max="15" value="0" step="1"/>
         <div class="slider-meta">
           <span>None</span>
-          <span id="added-readout">None</span>
+          <span id="added-val">None</span>
           <span>+15</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── MATCH STATE ── -->
+  <!-- MATCH STATE -->
   <div class="card">
     <div class="card-hd">Match State</div>
     <div class="card-body">
       <div class="row state-row">
-        <button class="btn btn-state on" data-state="1H">1H</button>
-        <button class="btn btn-state"    data-state="HT">HT</button>
-        <button class="btn btn-state"    data-state="2H">2H</button>
-        <button class="btn btn-state"    data-state="ET">ET</button>
-        <button class="btn btn-state"    data-state="FT">FT</button>
+        <button class="btn b-state on" data-st="1ST">1ST</button>
+        <button class="btn b-state"    data-st="HT">HT</button>
+        <button class="btn b-state"    data-st="2ND">2ND</button>
+        <button class="btn b-state"    data-st="ET">ET</button>
+        <button class="btn b-state"    data-st="FT">FT</button>
       </div>
     </div>
   </div>
 
-  <!-- ── KEYBOARD SHORTCUTS ── -->
+  <!-- KEYBOARD -->
   <div class="card">
     <div class="card-hd">Keyboard Shortcuts</div>
     <div class="card-body">
@@ -459,245 +357,141 @@ input[type=range]::-moz-range-thumb {
         <span class="kbd">←</span>     <span>−10 seconds</span>
         <span class="kbd">→</span>     <span>+10 seconds</span>
         <span class="kbd">R</span>     <span>Reset timer</span>
-        <span class="kbd">H</span>     <span>Open overlay preview</span>
+        <span class="kbd">H</span>     <span>Open this window (from overlay)</span>
       </div>
     </div>
   </div>
 
-</div><!-- /ctrl-body -->
+</main>
 
-<div class="ctrl-footer">Changes sync to overlay in real-time via localStorage</div>
+<footer>Syncs to overlay via localStorage — no backend needed</footer>
 
-<!-- ============================================================
-     CONTROLLER ENGINE
-     - Owns the timer (performance.now, zero drift)
-     - Writes all state to localStorage on every change
-     - Pushes wallTime so overlay can compensate for latency
-     ============================================================ -->
 <script>
-(function () {
+(function(){
   'use strict';
+  const KEY = 'fbState';
 
-  const KEY = 'fbOverlayState';
-
-  /* ── Shared state object ── */
   const state = {
-    homeName:   'ARS',
-    awayName:   'MCI',
-    homeScore:  0,
-    awayScore:  0,
-    homeColor:  '#c8102e',
-    awayColor:  '#003087',
-    elapsedMs:  0,
-    running:    false,
-    addedTime:  0,
-    matchState: '1H',
+    homeName:  'ARS', awayName:  'MCI',
+    homeColor: '#c8102e', awayColor: '#003087',
+    homeScore: 0, awayScore: 0,
+    elapsedMs: 0, running: false,
+    addedTime: 0, matchState: '1ST',
   };
 
-  /* ── Timer engine — performance.now, no drift ── */
-  let rafId   = null;
-  let startTs = 0;   // performance.now() at last start
-  let startMs = 0;   // state.elapsedMs snapshot at last start
+  /* Timer engine — performance.now, zero drift */
+  let rafId = 0, ts0 = 0, ms0 = 0;
 
-  /* Returns current elapsed ms regardless of running state */
-  function nowMs() {
-    return state.running
-      ? startMs + (performance.now() - startTs)
-      : state.elapsedMs;
-  }
+  function nowMs() { return state.running ? ms0 + (performance.now() - ts0) : state.elapsedMs; }
 
-  /* RAF callback — only ticks when running */
   function rafCb(ts) {
     if (!state.running) return;
-    state.elapsedMs = startMs + (ts - startTs);
+    state.elapsedMs = ms0 + (ts - ts0);
     renderClock();
     rafId = requestAnimationFrame(rafCb);
   }
 
   function startTimer() {
     if (state.running) return;
-    state.running = true;
-    startTs = performance.now();
-    startMs = state.elapsedMs;
+    state.running = true; ts0 = performance.now(); ms0 = state.elapsedMs;
     rafId = requestAnimationFrame(rafCb);
-    updateTimerBtns();
-    push();
+    syncBtns(); push();
   }
-
   function pauseTimer() {
     if (!state.running) return;
-    state.running = false;
-    cancelAnimationFrame(rafId);
-    state.elapsedMs = startMs + (performance.now() - startTs);
-    renderClock();
-    updateTimerBtns();
-    push();
+    state.running = false; cancelAnimationFrame(rafId);
+    state.elapsedMs = ms0 + (performance.now() - ts0);
+    renderClock(); syncBtns(); push();
   }
-
-  function resetTimer() {
-    pauseTimer();
-    state.elapsedMs = 0;
-    renderClock();
-    push();
+  function resetTimer() { pauseTimer(); state.elapsedMs = 0; renderClock(); push(); }
+  function adjust(d) {
+    const w = state.running; if(w) pauseTimer();
+    state.elapsedMs = Math.max(0, state.elapsedMs + d);
+    renderClock(); if(w) startTimer(); else push();
   }
-
-  function adjustTimer(deltaMs) {
-    const was = state.running;
-    if (was) pauseTimer();
-    state.elapsedMs = Math.max(0, state.elapsedMs + deltaMs);
-    renderClock();
-    if (was) startTimer(); else push();
-  }
-
-  function setTimerFromInput() {
-    const raw = document.getElementById('input-settime').value.trim();
+  function setTime() {
+    const raw = document.getElementById('in-settime').value.trim();
     let ms = 0;
-    if (/^\d{1,3}:\d{2}$/.test(raw)) {
-      const [m, s] = raw.split(':').map(Number);
-      ms = (m * 60 + s) * 1000;
-    } else if (/^\d+$/.test(raw)) {
-      ms = parseInt(raw, 10) * 1000;
-    } else return; // invalid input — do nothing
-    const was = state.running;
-    if (was) pauseTimer();
-    state.elapsedMs = ms;
-    renderClock();
-    document.getElementById('input-settime').value = '';
-    if (was) startTimer(); else push();
+    if (/^\d{1,3}:\d{2}$/.test(raw)) { const [m,s] = raw.split(':').map(Number); ms = (m*60+s)*1000; }
+    else if (/^\d+$/.test(raw)) { ms = parseInt(raw)*1000; }
+    else return;
+    const w = state.running; if(w) pauseTimer();
+    state.elapsedMs = ms; renderClock();
+    document.getElementById('in-settime').value = '';
+    if(w) startTimer(); else push();
   }
-
-  /* ── Render helpers ── */
 
   function fmt(ms) {
-    const s = Math.max(0, Math.floor(ms / 1000));
-    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    const s = Math.max(0, Math.floor(ms/1000));
+    return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
   }
 
-  function renderClock() {
-    document.getElementById('ctrl-clock').textContent = fmt(nowMs());
-  }
+  const dClock = document.getElementById('d-clock');
+  function renderClock() { dClock.textContent = fmt(nowMs()); }
 
-  function updateTimerBtns() {
+  function syncBtns() {
     document.getElementById('btn-start').style.opacity = state.running ? '0.4' : '1';
-    document.getElementById('btn-pause').style.opacity = state.running ? '1'   : '0.4';
+    document.getElementById('btn-pause').style.opacity = state.running ? '1' : '0.4';
   }
 
-  /* ── Push state to localStorage ── */
-  const syncDot  = document.getElementById('sync-dot');
-  let pushTimer  = null;
-
+  /* Push to localStorage */
+  const syncDot = document.getElementById('sync-dot');
+  let pushTid = null;
   function push() {
-    /* Include wallTime so overlay can compensate for storage latency */
-    const payload = { ...state, elapsedMs: nowMs(), wallTime: Date.now() };
-    localStorage.setItem(KEY, JSON.stringify(payload));
-
-    /* Flash sync indicator */
-    syncDot.classList.remove('flash');
-    void syncDot.offsetWidth;
-    syncDot.classList.add('flash');
-
-    /* While running: re-push every 500ms so overlay stays accurate */
-    clearTimeout(pushTimer);
-    if (state.running) pushTimer = setTimeout(push, 500);
+    localStorage.setItem(KEY, JSON.stringify({...state, elapsedMs: nowMs(), wallTime: Date.now()}));
+    syncDot.classList.remove('fl'); void syncDot.offsetWidth; syncDot.classList.add('fl');
+    clearTimeout(pushTid);
+    if (state.running) pushTid = setTimeout(push, 400);
   }
 
-  /* ── Event bindings ── */
+  /* Bindings */
+  document.getElementById('in-home').addEventListener('input', function(){ state.homeName = this.value||'HOME'; push(); });
+  document.getElementById('in-away').addEventListener('input', function(){ state.awayName = this.value||'AWAY'; push(); });
+  document.getElementById('in-home-color').addEventListener('input', function(){ state.homeColor = this.value; push(); });
+  document.getElementById('in-away-color').addEventListener('input', function(){ state.awayColor = this.value; push(); });
 
-  /* Team names */
-  document.getElementById('in-home-name').addEventListener('input', function () {
-    state.homeName = this.value || 'HOME'; push();
-  });
-  document.getElementById('in-away-name').addEventListener('input', function () {
-    state.awayName = this.value || 'AWAY'; push();
-  });
-
-  /* Kit colors */
-  document.getElementById('in-home-color').addEventListener('input', function () {
-    state.homeColor = this.value; push();
-  });
-  document.getElementById('in-away-color').addEventListener('input', function () {
-    state.awayColor = this.value; push();
-  });
-
-  /* Score +/− buttons */
   document.querySelectorAll('[data-d]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const team  = btn.dataset.team;
-      const delta = parseInt(btn.dataset.d, 10);
-      if (team === 'home') {
-        state.homeScore = Math.max(0, state.homeScore + delta);
-        document.getElementById('ctrl-hs').textContent = state.homeScore;
-      } else {
-        state.awayScore = Math.max(0, state.awayScore + delta);
-        document.getElementById('ctrl-as').textContent = state.awayScore;
-      }
+      const t = btn.dataset.team, d = parseInt(btn.dataset.d);
+      if (t === 'home') { state.homeScore = Math.max(0, state.homeScore + d); document.getElementById('d-hs').textContent = state.homeScore; }
+      else              { state.awayScore = Math.max(0, state.awayScore + d); document.getElementById('d-as').textContent = state.awayScore; }
       push();
     });
   });
 
-  /* Timer buttons */
   document.getElementById('btn-start').addEventListener('click', startTimer);
   document.getElementById('btn-pause').addEventListener('click', pauseTimer);
   document.getElementById('btn-reset').addEventListener('click', resetTimer);
-  document.getElementById('btn-m10').addEventListener('click', () => adjustTimer(-10000));
-  document.getElementById('btn-p10').addEventListener('click', () => adjustTimer( 10000));
-  document.getElementById('btn-set').addEventListener('click', setTimerFromInput);
-  document.getElementById('input-settime').addEventListener('keydown', e => {
-    if (e.key === 'Enter') setTimerFromInput();
-  });
+  document.getElementById('btn-m10').addEventListener('click', () => adjust(-10000));
+  document.getElementById('btn-p10').addEventListener('click', () => adjust( 10000));
+  document.getElementById('btn-set').addEventListener('click', setTime);
+  document.getElementById('in-settime').addEventListener('keydown', e => { if(e.key==='Enter') setTime(); });
 
-  /* Added time slider */
-  document.getElementById('slider-added').addEventListener('input', function () {
-    state.addedTime = parseInt(this.value, 10);
-    document.getElementById('added-readout').textContent =
-      state.addedTime > 0 ? '+' + state.addedTime + ' min' : 'None';
+  document.getElementById('slider-added').addEventListener('input', function(){
+    state.addedTime = parseInt(this.value);
+    document.getElementById('added-val').textContent = state.addedTime > 0 ? '+' + state.addedTime + ' min' : 'None';
     push();
   });
 
-  /* Match state buttons */
-  document.querySelectorAll('.btn-state').forEach(btn => {
+  document.querySelectorAll('[data-st]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.btn-state').forEach(b => b.classList.remove('on'));
-      btn.classList.add('on');
-      state.matchState = btn.dataset.state;
-      push();
+      document.querySelectorAll('[data-st]').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on'); state.matchState = btn.dataset.st; push();
     });
   });
 
-  /* Keyboard shortcuts */
   document.addEventListener('keydown', e => {
-    const tag = document.activeElement.tagName.toLowerCase();
-    if (tag === 'input' || tag === 'textarea') {
-      if (e.key === 'Escape') document.activeElement.blur();
-      return;
-    }
-    switch (e.key) {
-      case ' ':
-      case 'Space':
-        e.preventDefault();
-        state.running ? pauseTimer() : startTimer();
-        break;
-      case 'ArrowLeft':
-        e.preventDefault();
-        adjustTimer(-10000);
-        break;
-      case 'ArrowRight':
-        e.preventDefault();
-        adjustTimer(10000);
-        break;
-      case 'r': case 'R':
-        resetTimer();
-        break;
-      case 'h': case 'H':
-        window.open('overlay.html', 'fbOverlay', 'width=1280,height=200');
-        break;
+    const t = document.activeElement.tagName.toLowerCase();
+    if (t==='input'||t==='textarea') { if(e.key==='Escape') document.activeElement.blur(); return; }
+    switch(e.key) {
+      case ' ': case 'Space': e.preventDefault(); state.running ? pauseTimer() : startTimer(); break;
+      case 'ArrowLeft':  e.preventDefault(); adjust(-10000); break;
+      case 'ArrowRight': e.preventDefault(); adjust( 10000); break;
+      case 'r': case 'R': resetTimer(); break;
     }
   });
 
-  /* ── Init ── */
-  renderClock();
-  updateTimerBtns();
-  push(); // write initial state so overlay has something on first load
+  renderClock(); syncBtns(); push();
 })();
 </script>
 </body>
