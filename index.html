@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Football Scoreboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto+Condensed:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+/* ================================================================
+   RESET & ROOT
+   ================================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --home-color:  #c8102e;
+  --away-color:  #003087;
+  --fn:          'Oswald', sans-serif;
+  --fb:          'Roboto Condensed', sans-serif;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* ================================================================
+   OVERLAY — top center anchor, OBS transparent
+   ================================================================ */
+#overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ================================================================
+   ESPN CLASSIC SCOREBUG
+   Anatomy:
+     [●LIVE] [HOME ABBR] [HOME SCORE | AWAY SCORE] [AWAY ABBR] [CLOCK | PERIOD]
+   ================================================================ */
+#scorebug {
+  display: flex;
+  align-items: stretch;
+  /* Classic ESPN shadow — no glow, pure broadcast */
+  box-shadow: 0 2px 12px rgba(0,0,0,0.60), 0 1px 4px rgba(0,0,0,0.40);
+  animation: bugIn 0.25s ease-out both;
+}
+
+@keyframes bugIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── LIVE badge ── */
+.live-seg {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #cc0000;
+  padding: 0 10px 0 8px;
+  border-radius: 2px 0 0 2px;
+  flex-shrink: 0;
+}
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.live-label {
+  font-family: var(--fb);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1.8px; color: #fff; line-height: 1;
+}
+
+/* ── Home team slab ── */
+.slab-home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  min-width: 84px;
+  background: var(--home-color);
+  border-right: 1px solid rgba(0,0,0,0.20);
+  position: relative;
+}
+
+/* ── Score center block ── */
+.score-center {
+  display: flex;
+  align-items: center;
+  background: #111;
+  padding: 0 4px;
+  gap: 0;
+}
+
+/* Individual score digit column */
+.score-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  padding: 0 4px;
+}
+
+.score-num {
+  font-family: var(--fn);
+  font-size: 42px; font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* ESPN had a faint team-color rule above each score */
+.score-col-bar {
+  width: 100%; height: 3px;
+  margin-bottom: 3px;
+  border-radius: 1px;
+}
+.score-col-bar.home { background: var(--home-color); }
+.score-col-bar.away { background: var(--away-color); }
+
+.score-num.bump {
+  animation: scoreBump 0.32s ease-out;
+}
+@keyframes scoreBump {
+  0%   { transform: scale(1);    color: #fff; }
+  30%  { transform: scale(1.22); color: #f5c842; }
+  100% { transform: scale(1);    color: #fff; }
+}
+
+/* Dash between scores */
+.score-dash {
+  font-family: var(--fn);
+  font-size: 26px; font-weight: 400;
+  color: rgba(255,255,255,0.22);
+  padding: 0 3px;
+  line-height: 1;
+  user-select: none;
+  align-self: center;
+  /* push down slightly to align with numerals */
+  padding-top: 6px;
+}
+
+/* ── Away team slab ── */
+.slab-away {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  min-width: 84px;
+  background: var(--away-color);
+  border-left: 1px solid rgba(0,0,0,0.20);
+}
+
+/* Team name text */
+.team-abbr {
+  font-family: var(--fn);
+  font-size: 22px; font-weight: 700;
+  color: #fff;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ── Clock segment ── */
+.clock-seg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #0f0f0f;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  padding: 0 14px;
+  min-width: 90px;
+  gap: 2px;
+  border-radius: 0 2px 2px 0;
+}
+
+/* Main clock display */
+.clock-time {
+  font-family: var(--fn);
+  font-size: 20px; font-weight: 600;
+  color: rgba(255,255,255,0.90);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Period / state label below clock */
+.clock-period {
+  font-family: var(--fb);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1.8px;
+  color: rgba(255,255,255,0.38);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.clock-period.ft { color: #f5c842; }
+
+/* Added time pill */
+.added-pill {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #f5c842;
+  color: #1a1200;
+  font-family: var(--fn);
+  font-size: 10px; font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 1px;
+  line-height: 1.4;
+  white-space: nowrap;
+  animation: pillIn 0.2s ease-out both;
+}
+@keyframes pillIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* ================================================================
+   CONTROLLER PANEL
+   Toggled by pressing H — slides down from behind scorebug
+   ================================================================ */
+#panel-wrap {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  padding-top: 96px;  /* clears the scorebug */
+  z-index: 90;
+  pointer-events: none;
+}
+
+#ctrl-panel {
+  width: 460px;
+  max-width: calc(100vw - 24px);
+  background: #13151a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.75);
+  pointer-events: all;
+  overflow: hidden;
+  transform: translateY(-16px);
+  opacity: 0;
+  transition: transform 0.22s ease, opacity 0.2s ease;
+}
+
+#ctrl-panel.open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Panel sections */
+.p-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px;
+  background: #1c1f26;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.p-hd-title {
+  font-family: var(--fn);
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+}
+.p-hd-title em { color: #f5c842; font-style: normal; }
+
+.sync-row { display: flex; align-items: center; gap: 5px; font-family: var(--fb); font-size: 10px; color: rgba(255,255,255,0.25); }
+.sync-dot { width: 5px; height: 5px; border-radius: 50%; background: #23a050; }
+.sync-dot.flash { animation: sfl 0.3s ease; }
+@keyframes sfl { 0%{background:#fff} 100%{background:#23a050} }
+
+.p-body {
+  padding: 10px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+/* Card */
+.pcard {
+  background: #1c1f26;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.pcard-hd {
+  padding: 5px 11px;
+  background: #21242c;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-family: var(--fb);
+  font-size: 8px; font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+}
+.pcard-body {
+  padding: 10px 11px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+/* Grid helpers */
+.row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.col2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+/* Team column */
+.tcol { display: flex; flex-direction: column; gap: 6px; }
+.tcol-lbl {
+  font-family: var(--fb);
+  font-size: 8px; font-weight: 700;
+  letter-spacing: 1.8px; text-transform: uppercase;
+  padding-bottom: 4px; border-bottom: 2px solid transparent;
+}
+.tcol.home .tcol-lbl { color: #ff8096; border-color: #c8102e; }
+.tcol.away .tcol-lbl { color: #7aaeff; border-color: #003087; }
+.color-row { display: flex; align-items: center; gap: 6px; font-family: var(--fb); font-size: 10px; color: rgba(255,255,255,0.40); }
+
+/* Inputs */
+input[type=text] {
+  background: #0d0e12;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 3px;
+  color: #fff;
+  font-family: var(--fn);
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 1px;
+  padding: 5px 8px;
+  outline: none;
+  text-transform: uppercase;
+  width: 100%;
+  transition: border-color .12s;
+}
+input[type=text]:focus { border-color: rgba(255,255,255,0.28); }
+input[type=color] {
+  background: #0d0e12;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 3px;
+  width: 34px; height: 28px;
+  padding: 2px; cursor: pointer; flex-shrink: 0;
+}
+
+/* Score controls */
+.score-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.score-unit { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.score-big {
+  font-family: var(--fn);
+  font-size: 44px; font-weight: 700;
+  color: #fff; font-variant-numeric: tabular-nums; line-height: 1;
+}
+.score-unit-lbl { font-family: var(--fb); font-size: 8px; letter-spacing: 1.8px; color: rgba(255,255,255,0.25); text-transform: uppercase; }
+.btn-pair { display: flex; align-items: center; gap: 7px; }
+
+/* Clock display in panel */
+.clock-big {
+  font-family: var(--fn);
+  font-size: 44px; font-weight: 600;
+  color: #fff; font-variant-numeric: tabular-nums;
+  letter-spacing: 1px; line-height: 1;
+  text-align: center; padding: 3px 0 5px;
+}
+
+/* Buttons */
+.btn {
+  font-family: var(--fb);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.4px;
+  border: none; border-radius: 3px;
+  cursor: pointer; padding: 7px 11px;
+  transition: background .12s, transform .07s;
+  text-transform: uppercase; line-height: 1; white-space: nowrap;
+}
+.btn:active { transform: scale(0.94); }
+
+.btn-circ {
+  width: 32px; height: 32px; padding: 0; border-radius: 50%;
+  font-size: 18px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.btn-minus { background: rgba(176,30,46,.18); color: #ff8096; border: 1px solid rgba(176,30,46,.28); }
+.btn-minus:hover { background: rgba(176,30,46,.40); color: #fff; }
+.btn-plus  { background: rgba(28,122,63,.18);  color: #5cdb80; border: 1px solid rgba(28,122,63,.28); }
+.btn-plus:hover  { background: rgba(28,122,63,.40); color: #fff; }
+
+.btn-go   { background: #1c7a3f; color: #fff; }
+.btn-go:hover   { background: #23a050; }
+.btn-hold { background: rgba(245,200,66,.14); color: #f5c842; border: 1px solid rgba(245,200,66,.28); }
+.btn-hold:hover { background: rgba(245,200,66,.26); }
+.btn-stop { background: rgba(176,30,46,.60); color: #fff; }
+.btn-stop:hover { background: #d02535; }
+.btn-ghost { background: rgba(255,255,255,.05); color: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.08); }
+.btn-ghost:hover { background: rgba(255,255,255,.10); color: #fff; }
+
+/* State buttons */
+.state-row { gap: 5px; flex-wrap: nowrap; }
+.btn-state {
+  flex: 1; padding: 6px 4px; font-size: 11px;
+  background: #21242c; color: rgba(255,255,255,.40);
+  border: 1px solid rgba(255,255,255,.07);
+}
+.btn-state:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.75); }
+.btn-state.on {
+  background: rgba(245,200,66,.12);
+  color: #f5c842;
+  border-color: rgba(245,200,66,.28);
+}
+
+/* Slider */
+.slider-wrap { width: 100%; display: flex; flex-direction: column; gap: 5px; }
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%; height: 3px;
+  background: rgba(255,255,255,.10);
+  border-radius: 10px; outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #f5c842;
+  box-shadow: 0 0 4px rgba(245,200,66,.35);
+  cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+input[type=range]::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #f5c842; border: none; cursor: pointer;
+}
+.slider-meta { display: flex; justify-content: space-between; font-family: var(--fb); font-size: 10px; color: rgba(255,255,255,.28); }
+#added-readout { color: #f5c842; font-weight: 700; }
+
+/* Set time input */
+#input-settime { width: 76px; flex-shrink: 0; }
+.row-lbl { font-family: var(--fb); font-size: 10px; color: rgba(255,255,255,.40); white-space: nowrap; min-width: 52px; }
+
+/* Keyboard hints */
+.key-grid { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: center; }
+.kbd {
+  display: inline-block;
+  background: #21242c; border: 1px solid rgba(255,255,255,.12); border-radius: 2px;
+  padding: 2px 7px; font-family: var(--fn); font-size: 10px; font-weight: 600;
+  color: rgba(255,255,255,.50); letter-spacing: .5px; white-space: nowrap;
+}
+.key-grid span:not(.kbd) { font-family: var(--fb); font-size: 10px; color: rgba(255,255,255,.28); }
+
+/* Panel footer */
+.p-foot {
+  padding: 7px 14px; text-align: center;
+  font-family: var(--fb); font-size: 9px; color: rgba(255,255,255,.20);
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+/* Hint bar */
+#hint {
+  position: fixed;
+  bottom: 14px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.50);
+  color: rgba(255,255,255,0.35);
+  font-family: var(--fb); font-size: 11px;
+  padding: 5px 14px; border-radius: 20px;
+  pointer-events: none; white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: opacity 0.4s;
+}
+#hint.hide { opacity: 0; }
+#hint kbd {
+  background: rgba(255,255,255,.12); border-radius: 2px;
+  padding: 1px 5px; font-size: 10px; font-weight: 700;
+  color: rgba(255,255,255,.55);
+}
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 540px) {
+  .slab-home, .slab-away { min-width: 62px; padding: 0 10px; }
+  .team-abbr { font-size: 17px; }
+  .score-num { font-size: 34px; }
+  .score-dash { font-size: 20px; }
+  .clock-time { font-size: 17px; }
+  .clock-seg { min-width: 76px; padding: 0 9px; }
+  .live-seg { padding: 0 8px 0 6px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     SCOREBUG OVERLAY
+     Layout: [●LIVE][HOME][▌HOME SCORE▕AWAY SCORE▌][AWAY][TIME↕PERIOD]
+     ================================================================ -->
+<div id="overlay">
+  <div id="scorebug">
+
+    <!-- Live indicator -->
+    <div class="live-seg">
+      <span class="live-dot"></span>
+      <span class="live-label">LIVE</span>
+    </div>
+
+    <!-- Home team -->
+    <div class="slab-home" id="el-home-slab">
+      <span class="team-abbr" id="el-home-name">ARS</span>
+    </div>
+
+    <!-- Score center: color bar + number per team, with dash -->
+    <div class="score-center">
+      <div class="score-col">
+        <div class="score-col-bar home" id="el-home-bar"></div>
+        <span class="score-num" id="el-home-score">0</span>
+      </div>
+      <span class="score-dash">–</span>
+      <div class="score-col">
+        <div class="score-col-bar away" id="el-away-bar"></div>
+        <span class="score-num" id="el-away-score">0</span>
+      </div>
+    </div>
+
+    <!-- Away team -->
+    <div class="slab-away" id="el-away-slab">
+      <span class="team-abbr" id="el-away-name">MCI</span>
+    </div>
+
+    <!-- Clock + period -->
+    <div class="clock-seg">
+      <span class="clock-time" id="el-clock">00:00</span>
+      <span class="added-pill" id="el-added"></span>
+      <span class="clock-period" id="el-period">1ST</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     CONTROLLER PANEL  (toggle with H)
+     ================================================================ -->
+<div id="panel-wrap">
+  <div id="ctrl-panel">
+
+    <div class="p-hd">
+      <span class="p-hd-title">Football <em>Control</em></span>
+      <div class="sync-row">
+        <div class="sync-dot" id="sync-dot"></div>
+        <span>Synced</span>
+      </div>
+    </div>
+
+    <div class="p-body">
+
+      <!-- Teams -->
+      <div class="pcard">
+        <div class="pcard-hd">Teams</div>
+        <div class="pcard-body">
+          <div class="col2">
+            <div class="tcol home">
+              <div class="tcol-lbl">Home</div>
+              <input type="text" id="in-home-name" value="ARS" maxlength="8" placeholder="HOME"/>
+              <div class="color-row">
+                <input type="color" id="in-home-color" value="#c8102e"/>
+                <span>Kit color</span>
+              </div>
+            </div>
+            <div class="tcol away">
+              <div class="tcol-lbl">Away</div>
+              <input type="text" id="in-away-name" value="MCI" maxlength="8" placeholder="AWAY"/>
+              <div class="color-row">
+                <input type="color" id="in-away-color" value="#003087"/>
+                <span>Kit color</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score -->
+      <div class="pcard">
+        <div class="pcard-hd">Score</div>
+        <div class="pcard-body">
+          <div class="score-pair">
+            <div class="score-unit">
+              <div class="btn-pair">
+                <button class="btn btn-circ btn-minus" data-team="home" data-d="-1">−</button>
+                <div class="score-big" id="ctrl-hs">0</div>
+                <button class="btn btn-circ btn-plus"  data-team="home" data-d="1">+</button>
+              </div>
+              <div class="score-unit-lbl">Home</div>
+            </div>
+            <div class="score-unit">
+              <div class="btn-pair">
+                <button class="btn btn-circ btn-minus" data-team="away" data-d="-1">−</button>
+                <div class="score-big" id="ctrl-as">0</div>
+                <button class="btn btn-circ btn-plus"  data-team="away" data-d="1">+</button>
+              </div>
+              <div class="score-unit-lbl">Away</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div class="pcard">
+        <div class="pcard-hd">Match Timer</div>
+        <div class="pcard-body">
+          <div class="clock-big" id="ctrl-clock">00:00</div>
+          <div class="row">
+            <button class="btn btn-go"   id="btn-start">▶ Start</button>
+            <button class="btn btn-hold" id="btn-pause" style="opacity:.4">⏸ Pause</button>
+            <button class="btn btn-stop" id="btn-reset">↺ Reset</button>
+          </div>
+          <div class="row">
+            <button class="btn btn-ghost" id="btn-m10">− 10s</button>
+            <button class="btn btn-ghost" id="btn-p10">+ 10s</button>
+          </div>
+          <div class="row">
+            <span class="row-lbl">Set time</span>
+            <input type="text" id="input-settime" placeholder="45:00" maxlength="6"/>
+            <button class="btn btn-ghost" id="btn-set">Set</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Added time -->
+      <div class="pcard">
+        <div class="pcard-hd">Added Time</div>
+        <div class="pcard-body">
+          <div class="slider-wrap">
+            <input type="range" id="slider-added" min="0" max="15" value="0" step="1"/>
+            <div class="slider-meta">
+              <span>None</span>
+              <span id="added-readout">None</span>
+              <span>+15</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Match state -->
+      <div class="pcard">
+        <div class="pcard-hd">Match State</div>
+        <div class="pcard-body">
+          <div class="row state-row">
+            <button class="btn btn-state on" data-state="1ST">1ST</button>
+            <button class="btn btn-state"    data-state="HT">HT</button>
+            <button class="btn btn-state"    data-state="2ND">2ND</button>
+            <button class="btn btn-state"    data-state="ET">ET</button>
+            <button class="btn btn-state"    data-state="FT">FT</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shortcuts -->
+      <div class="pcard">
+        <div class="pcard-hd">Keyboard Shortcuts</div>
+        <div class="pcard-body">
+          <div class="key-grid">
+            <span class="kbd">H</span>     <span>Toggle this panel</span>
+            <span class="kbd">SPACE</span> <span>Start / Pause timer</span>
+            <span class="kbd">←</span>     <span>−10 seconds</span>
+            <span class="kbd">→</span>     <span>+10 seconds</span>
+            <span class="kbd">R</span>     <span>Reset timer</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /p-body -->
+
+    <div class="p-foot">ESPN-style football broadcast overlay · single file</div>
+
+  </div><!-- /ctrl-panel -->
+</div><!-- /panel-wrap -->
+
+<!-- Hint -->
+<div id="hint">Press <kbd>H</kbd> to open controls</div>
+
+<!-- ================================================================
+     SCRIPT — single-file self-contained engine
+     Timer: performance.now() — zero drift
+     No localStorage needed — everything lives in this page
+     ================================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── State ── */
+  const state = {
+    homeName:   'ARS',
+    awayName:   'MCI',
+    homeScore:  0,
+    awayScore:  0,
+    homeColor:  '#c8102e',
+    awayColor:  '#003087',
+    elapsedMs:  0,
+    running:    false,
+    addedTime:  0,
+    matchState: '1ST',
+    panelOpen:  false,
+  };
+
+  /* ── DOM refs — overlay ── */
+  const elHomeName  = document.getElementById('el-home-name');
+  const elAwayName  = document.getElementById('el-away-name');
+  const elHomeScore = document.getElementById('el-home-score');
+  const elAwayScore = document.getElementById('el-away-score');
+  const elHomeSlab  = document.getElementById('el-home-slab');
+  const elAwaySlab  = document.getElementById('el-away-slab');
+  const elHomeBar   = document.getElementById('el-home-bar');
+  const elAwayBar   = document.getElementById('el-away-bar');
+  const elClock     = document.getElementById('el-clock');
+  const elAdded     = document.getElementById('el-added');
+  const elPeriod    = document.getElementById('el-period');
+  const root        = document.documentElement;
+
+  /* ── DOM refs — controller ── */
+  const ctrlPanel   = document.getElementById('ctrl-panel');
+  const syncDot     = document.getElementById('sync-dot');
+  const ctrlClock   = document.getElementById('ctrl-clock');
+  const ctrlHS      = document.getElementById('ctrl-hs');
+  const ctrlAS      = document.getElementById('ctrl-as');
+  const btnStart    = document.getElementById('btn-start');
+  const btnPause    = document.getElementById('btn-pause');
+  const hint        = document.getElementById('hint');
+
+  /* ================================================================
+     TIMER ENGINE — performance.now, zero drift
+     ================================================================ */
+  let rafId   = null;
+  let startTs = 0;
+  let startMs = 0;
+
+  function nowMs () {
+    return state.running
+      ? startMs + (performance.now() - startTs)
+      : state.elapsedMs;
+  }
+
+  function rafCb (ts) {
+    if (!state.running) return;
+    state.elapsedMs = startMs + (ts - startTs);
+    renderClock();
+    rafId = requestAnimationFrame(rafCb);
+  }
+
+  function startTimer () {
+    if (state.running) return;
+    state.running = true;
+    startTs = performance.now();
+    startMs = state.elapsedMs;
+    rafId = requestAnimationFrame(rafCb);
+    updateTimerBtns();
+  }
+
+  function pauseTimer () {
+    if (!state.running) return;
+    state.running = false;
+    cancelAnimationFrame(rafId);
+    state.elapsedMs = startMs + (performance.now() - startTs);
+    renderClock();
+    updateTimerBtns();
+  }
+
+  function resetTimer () {
+    pauseTimer();
+    state.elapsedMs = 0;
+    renderClock();
+  }
+
+  function adjustTimer (delta) {
+    const was = state.running;
+    if (was) pauseTimer();
+    state.elapsedMs = Math.max(0, state.elapsedMs + delta);
+    renderClock();
+    if (was) startTimer();
+  }
+
+  function setTimerFromInput () {
+    const raw = document.getElementById('input-settime').value.trim();
+    let ms = 0;
+    if (/^\d{1,3}:\d{2}$/.test(raw)) {
+      const [m, s] = raw.split(':').map(Number);
+      ms = (m * 60 + s) * 1000;
+    } else if (/^\d+$/.test(raw)) {
+      ms = parseInt(raw, 10) * 1000;
+    } else { return; }
+    const was = state.running;
+    if (was) pauseTimer();
+    state.elapsedMs = ms;
+    renderClock();
+    document.getElementById('input-settime').value = '';
+    if (was) startTimer();
+  }
+
+  /* ================================================================
+     RENDER
+     ================================================================ */
+
+  function fmt (ms) {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  function renderClock () {
+    const t = fmt(state.running ? nowMs() : state.elapsedMs);
+    elClock.textContent    = t;
+    ctrlClock.textContent  = t;
+  }
+
+  function bump (el) {
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
+    el.addEventListener('animationend', () => el.classList.remove('bump'), { once: true });
+  }
+
+  function renderScore (team) {
+    if (team === 'home') {
+      elHomeScore.textContent = state.homeScore;
+      ctrlHS.textContent      = state.homeScore;
+      bump(elHomeScore);
+    } else {
+      elAwayScore.textContent = state.awayScore;
+      ctrlAS.textContent      = state.awayScore;
+      bump(elAwayScore);
+    }
+  }
+
+  function renderColors () {
+    root.style.setProperty('--home-color', state.homeColor);
+    root.style.setProperty('--away-color', state.awayColor);
+    elHomeSlab.style.background = state.homeColor;
+    elAwaySlab.style.background = state.awayColor;
+    elHomeBar.style.background  = state.homeColor;
+    elAwayBar.style.background  = state.awayColor;
+  }
+
+  function renderTeams () {
+    elHomeName.textContent = state.homeName.toUpperCase();
+    elAwayName.textContent = state.awayName.toUpperCase();
+  }
+
+  function renderAddedTime () {
+    const at = state.addedTime;
+    if (at > 0) {
+      elAdded.textContent = '+' + at;
+      elAdded.style.display = 'inline-flex';
+      elAdded.style.animation = 'none';
+      void elAdded.offsetWidth;
+      elAdded.style.animation = '';
+    } else {
+      elAdded.style.display = 'none';
+    }
+    document.getElementById('added-readout').textContent =
+      at > 0 ? '+' + at + ' min' : 'None';
+  }
+
+  function renderState (s) {
+    elPeriod.textContent = s;
+    elPeriod.className = 'clock-period' + (s === 'FT' ? ' ft' : '');
+  }
+
+  function updateTimerBtns () {
+    btnStart.style.opacity = state.running ? '0.4' : '1';
+    btnPause.style.opacity = state.running ? '1'   : '0.4';
+  }
+
+  function flashSync () {
+    syncDot.classList.remove('flash');
+    void syncDot.offsetWidth;
+    syncDot.classList.add('flash');
+  }
+
+  /* ================================================================
+     PANEL TOGGLE
+     ================================================================ */
+  let hintTimer = null;
+
+  function openPanel () {
+    state.panelOpen = true;
+    ctrlPanel.classList.add('open');
+    hint.classList.add('hide');
+    clearTimeout(hintTimer);
+  }
+
+  function closePanel () {
+    state.panelOpen = false;
+    ctrlPanel.classList.remove('open');
+    hint.classList.remove('hide');
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => hint.classList.add('hide'), 3500);
+  }
+
+  function togglePanel () {
+    state.panelOpen ? closePanel() : openPanel();
+  }
+
+  /* ================================================================
+     EVENT BINDINGS
+     ================================================================ */
+
+  /* Team names */
+  document.getElementById('in-home-name').addEventListener('input', function () {
+    state.homeName = this.value || 'HOME';
+    renderTeams(); flashSync();
+  });
+  document.getElementById('in-away-name').addEventListener('input', function () {
+    state.awayName = this.value || 'AWAY';
+    renderTeams(); flashSync();
+  });
+
+  /* Kit colors */
+  document.getElementById('in-home-color').addEventListener('input', function () {
+    state.homeColor = this.value; renderColors(); flashSync();
+  });
+  document.getElementById('in-away-color').addEventListener('input', function () {
+    state.awayColor = this.value; renderColors(); flashSync();
+  });
+
+  /* Score buttons */
+  document.querySelectorAll('[data-d]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const team  = btn.dataset.team;
+      const delta = parseInt(btn.dataset.d, 10);
+      if (team === 'home') {
+        state.homeScore = Math.max(0, state.homeScore + delta);
+      } else {
+        state.awayScore = Math.max(0, state.awayScore + delta);
+      }
+      renderScore(team);
+      flashSync();
+    });
+  });
+
+  /* Timer buttons */
+  btnStart.addEventListener('click', startTimer);
+  btnPause.addEventListener('click', pauseTimer);
+  document.getElementById('btn-reset').addEventListener('click', resetTimer);
+  document.getElementById('btn-m10').addEventListener('click', () => adjustTimer(-10000));
+  document.getElementById('btn-p10').addEventListener('click', () => adjustTimer( 10000));
+  document.getElementById('btn-set').addEventListener('click', setTimerFromInput);
+  document.getElementById('input-settime').addEventListener('keydown', e => {
+    if (e.key === 'Enter') setTimerFromInput();
+  });
+
+  /* Added time slider */
+  document.getElementById('slider-added').addEventListener('input', function () {
+    state.addedTime = parseInt(this.value, 10);
+    renderAddedTime(); flashSync();
+  });
+
+  /* Match state */
+  document.querySelectorAll('.btn-state').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-state').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      state.matchState = btn.dataset.state;
+      renderState(state.matchState);
+      flashSync();
+    });
+  });
+
+  /* Keyboard shortcuts */
+  document.addEventListener('keydown', e => {
+    const tag = document.activeElement.tagName.toLowerCase();
+    if (tag === 'input' || tag === 'textarea') {
+      if (e.key === 'Escape') document.activeElement.blur();
+      return;
+    }
+    switch (e.key) {
+      case 'h': case 'H':
+        togglePanel(); break;
+      case ' ': case 'Space':
+        e.preventDefault();
+        state.running ? pauseTimer() : startTimer();
+        break;
+      case 'ArrowLeft':
+        e.preventDefault(); adjustTimer(-10000); break;
+      case 'ArrowRight':
+        e.preventDefault(); adjustTimer( 10000); break;
+      case 'r': case 'R':
+        resetTimer(); break;
+    }
+  });
+
+  /* ================================================================
+     INIT
+     ================================================================ */
+  renderTeams();
+  renderColors();
+  renderClock();
+  renderAddedTime();
+  renderState(state.matchState);
+  updateTimerBtns();
+
+  /* Auto-fade hint after 4s */
+  hintTimer = setTimeout(() => hint.classList.add('hide'), 4000);
+
+})();
+</script>
+</body>
+</html>
