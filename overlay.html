@@ -8,238 +8,246 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
+/* ============================================================
+   RESET
+   ============================================================ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
 :root{
-  --home-color:#c8102e;
-  --away-color:#003087;
-  --score-bg:#1a1a1a;
-  --timer-bg:#131313;
-  --bug-h:52px;
-  --font-display:'Oswald',sans-serif;
-  --font-body:'Roboto Condensed',sans-serif;
+  --home-color: #c8102e;
+  --away-color: #003087;
+  --score-bg:   #1a1a1a;
+  --timer-bg:   #111111;
+  --bug-h:      52px;
+  --f-disp:     'Oswald', sans-serif;
+  --f-body:     'Roboto Condensed', sans-serif;
 }
 
-html,body{
-  width:100%;height:100%;
-  background:transparent;
-  overflow:hidden;
+/* ============================================================
+   BASE
+   ============================================================ */
+html, body {
+  width: 100%; height: 100%;
+  background: transparent;
+  overflow: hidden;
 }
 
-/* Overlay wrapper — positioned top-center */
-#overlay{
-  position:fixed;
-  top:0;left:0;right:0;
-  display:flex;
-  justify-content:center;
-  padding-top:18px;
-  pointer-events:none;
+/* ============================================================
+   OVERLAY ANCHOR
+   ============================================================ */
+#overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  padding-top: 18px;
+  pointer-events: none;
 }
 
-/* Master scorebug bar */
-#scorebug{
-  display:flex;
-  align-items:stretch;
-  height:var(--bug-h);
-  /* Single hard shadow — broadcast TV treatment */
-  box-shadow:0 3px 18px rgba(0,0,0,0.65),0 1px 4px rgba(0,0,0,0.4);
-  animation:bugReveal 0.3s ease-out both;
+/* ============================================================
+   SCOREBUG SHELL
+   ============================================================ */
+#scorebug {
+  display: flex;
+  align-items: stretch;
+  height: var(--bug-h);
+  box-shadow: 0 3px 20px rgba(0,0,0,0.70), 0 1px 5px rgba(0,0,0,0.45);
+  animation: bugReveal 0.28s ease-out both;
 }
 
-@keyframes bugReveal{
-  from{opacity:0;transform:translateY(-8px)}
-  to  {opacity:1;transform:translateY(0)}
+@keyframes bugReveal {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Home team slab ── */
-.slab-home{
-  display:flex;align-items:center;justify-content:flex-end;
-  padding:0 16px 0 18px;
-  min-width:90px;
-  background:var(--home-color);
-  /* sharp left-edge rounded corner only — ESPN uses near-square */
-  border-radius:2px 0 0 2px;
-  position:relative;
-}
-/* thin right-edge divider line */
-.slab-home::after{
-  content:'';position:absolute;right:0;top:20%;height:60%;
-  width:1px;background:rgba(0,0,0,0.25);
+/* Needs relative for the LIVE badge anchor */
+#scorebug-inner {
+  position: relative;
+  display: flex;
+  align-items: stretch;
 }
 
-/* ── Away team slab ── */
-.slab-away{
-  display:flex;align-items:center;justify-content:flex-start;
-  padding:0 18px 0 16px;
-  min-width:90px;
-  background:var(--away-color);
-  border-radius:0 2px 2px 0;
-  position:relative;
+/* ============================================================
+   LIVE BADGE  — corner-pinned, ESPN style
+   ============================================================ */
+.live-badge {
+  position: absolute;
+  top: -1px; left: -1px;
+  display: flex; align-items: center; gap: 4px;
+  background: #cc0000;
+  padding: 2px 7px 2px 5px;
+  border-radius: 2px 0 3px 0;
+  z-index: 10;
+  pointer-events: none;
 }
-.slab-away::before{
-  content:'';position:absolute;left:0;top:20%;height:60%;
-  width:1px;background:rgba(0,0,0,0.25);
+.live-pulse {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  animation: liveDot 1.8s ease-in-out infinite;
 }
-
-/* ── Score area ── */
-.score-block{
-  display:flex;align-items:center;justify-content:center;
-  background:var(--score-bg);
-  min-width:110px;
-  padding:0 8px;
-  gap:0;
-  position:relative;
-}
-
-/* ── Timer area ── */
-.timer-block{
-  display:flex;align-items:center;
-  padding:0 14px;
-  background:var(--timer-bg);
-  border-radius:0 2px 2px 0;
-  border-left:1px solid rgba(255,255,255,0.06);
-  gap:6px;
-  min-width:100px;
+@keyframes liveDot { 0%,100%{opacity:1} 50%{opacity:0.22} }
+.live-label {
+  font-family: var(--f-body);
+  font-size: 8.5px; font-weight: 700;
+  letter-spacing: 1.6px; color: #fff; line-height: 1;
 }
 
-/* ══ Typography ══ */
-
-/* Team abbreviations */
-.team-abbr{
-  font-family:var(--font-display);
-  font-size:22px;
-  font-weight:700;
-  color:#fff;
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-  line-height:1;
-  white-space:nowrap;
+/* ============================================================
+   TEAM SLABS
+   ============================================================ */
+.slab-home {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 0 16px 0 18px;
+  min-width: 92px;
+  background: var(--home-color);
+  border-radius: 2px 0 0 2px;
+  position: relative;
+}
+/* Inner-edge seam line */
+.slab-home::after {
+  content: ''; position: absolute;
+  right: 0; top: 18%; height: 64%;
+  width: 1px; background: rgba(0,0,0,0.22);
 }
 
-/* Score numerals — largest element on bar */
-.score-num{
-  font-family:var(--font-display);
-  font-size:40px;
-  font-weight:700;
-  color:#fff;
-  line-height:1;
-  font-variant-numeric:tabular-nums;
-  display:block;
-  min-width:22px;
-  text-align:center;
+.slab-away {
+  display: flex; align-items: center; justify-content: flex-start;
+  padding: 0 18px 0 16px;
+  min-width: 92px;
+  background: var(--away-color);
+  border-radius: 0 2px 2px 0;
+  position: relative;
+}
+.slab-away::before {
+  content: ''; position: absolute;
+  left: 0; top: 18%; height: 64%;
+  width: 1px; background: rgba(0,0,0,0.22);
 }
 
-.score-num.goal-bump{
-  animation:goalFlash 0.38s ease-out;
-}
-@keyframes goalFlash{
-  0%  {transform:scale(1)  ;color:#fff}
-  30% {transform:scale(1.2);color:#f5c842}
-  100%{transform:scale(1)  ;color:#fff}
-}
-
-.score-dash{
-  font-family:var(--font-display);
-  font-size:28px;
-  font-weight:400;
-  color:rgba(255,255,255,0.28);
-  line-height:1;
-  padding:0 6px;
-  user-select:none;
+.team-abbr {
+  font-family: var(--f-disp);
+  font-size: 22px; font-weight: 700;
+  color: #fff;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  line-height: 1; white-space: nowrap;
 }
 
-/* Clock */
-.clock{
-  font-family:var(--font-display);
-  font-size:22px;
-  font-weight:500;
-  color:rgba(255,255,255,0.88);
-  font-variant-numeric:tabular-nums;
-  letter-spacing:0.5px;
-  line-height:1;
+/* ============================================================
+   SCORE BLOCK
+   ============================================================ */
+.score-block {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--score-bg);
+  min-width: 112px;
+  padding: 0 8px;
+  gap: 0;
 }
 
-/* Added-time tag */
-.added-tag{
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:#f5c842;
-  color:#1a1200;
-  font-family:var(--font-display);
-  font-size:11px;
-  font-weight:600;
-  letter-spacing:0.3px;
-  padding:2px 6px 2px 5px;
-  border-radius:1px;
-  line-height:1.3;
-  white-space:nowrap;
-  animation:tagIn 0.22s ease-out both;
-}
-@keyframes tagIn{
-  from{transform:scale(0.75);opacity:0}
-  to  {transform:scale(1)   ;opacity:1}
+.score-num {
+  font-family: var(--f-disp);
+  font-size: 40px; font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  min-width: 24px;
+  text-align: center;
 }
 
-/* Match state — period indicator */
-.state-tag{
-  font-family:var(--font-body);
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:1.5px;
-  color:rgba(255,255,255,0.42);
-  text-transform:uppercase;
-  border-left:1px solid rgba(255,255,255,0.10);
-  padding-left:8px;
-  line-height:1;
-  white-space:nowrap;
+/* Goal scored animation */
+.score-num.goal-bump {
+  animation: goalFlash 0.36s ease-out;
 }
-.state-tag.ft{color:#f5c842}
-
-/* ESPN-style "LIVE" micro-tag — top-left corner of scorebug */
-.live-badge{
-  position:absolute;
-  top:-1px;left:-1px;
-  display:flex;align-items:center;gap:3px;
-  background:#cc0000;
-  padding:2px 7px 2px 5px;
-  border-radius:2px 0 2px 0;
-  z-index:5;pointer-events:none;
-  /* attached to the scorebug wrapper */
-}
-.live-pulse{
-  width:5px;height:5px;
-  border-radius:50%;
-  background:#fff;
-  animation:liveDot 1.8s ease-in-out infinite;
-}
-@keyframes liveDot{0%,100%{opacity:1}50%{opacity:0.25}}
-.live-text{
-  font-family:var(--font-body);
-  font-size:8.5px;
-  font-weight:700;
-  letter-spacing:1.5px;
-  color:#fff;
-  line-height:1;
+@keyframes goalFlash {
+  0%   { transform: scale(1);    color: #fff; }
+  32%  { transform: scale(1.22); color: #f5c842; }
+  100% { transform: scale(1);    color: #fff; }
 }
 
-/* Scorebug wrapper — needs relative for LIVE badge */
-#scorebug-inner{
-  position:relative;
-  display:flex;
-  align-items:stretch;
+.score-dash {
+  font-family: var(--f-disp);
+  font-size: 28px; font-weight: 400;
+  color: rgba(255,255,255,0.26);
+  line-height: 1;
+  padding: 0 7px;
+  user-select: none;
 }
 
-/* ══ Responsive ══ */
-@media(max-width:560px){
-  :root{--bug-h:44px}
-  .team-abbr{font-size:17px}
-  .score-num{font-size:32px}
-  .score-dash{font-size:22px}
-  .clock{font-size:18px}
-  .slab-home,.slab-away{min-width:68px;padding:0 10px}
-  .score-block{min-width:86px}
-  .timer-block{min-width:82px;padding:0 8px}
+/* ============================================================
+   TIMER BLOCK
+   ============================================================ */
+.timer-block {
+  display: flex; align-items: center;
+  padding: 0 15px;
+  background: var(--timer-bg);
+  border-radius: 0 2px 2px 0;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  gap: 7px;
+  min-width: 102px;
+}
+
+/* Match clock — secondary to score, never dominant */
+.clock {
+  font-family: var(--f-disp);
+  font-size: 22px; font-weight: 500;
+  color: rgba(255,255,255,0.88);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+/* Added-time tag — flat amber rectangle, no glow */
+.added-tag {
+  display: none;
+  align-items: center; justify-content: center;
+  background: #f5c842;
+  color: #1a1200;
+  font-family: var(--f-disp);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 2px 6px;
+  border-radius: 1px;
+  line-height: 1.3;
+  white-space: nowrap;
+  animation: tagIn 0.2s ease-out both;
+}
+@keyframes tagIn {
+  from { transform: scale(0.72); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* Match state / period label */
+.state-tag {
+  font-family: var(--f-body);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.40);
+  text-transform: uppercase;
+  border-left: 1px solid rgba(255,255,255,0.09);
+  padding-left: 8px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.state-tag.ft { color: #f5c842; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 560px) {
+  :root { --bug-h: 44px; }
+  .team-abbr  { font-size: 17px; }
+  .score-num  { font-size: 32px; }
+  .score-dash { font-size: 22px; }
+  .clock      { font-size: 18px; }
+  .slab-home, .slab-away { min-width: 68px; padding: 0 10px; }
+  .score-block { min-width: 88px; }
+  .timer-block { min-width: 84px; padding: 0 9px; }
+  .live-badge  { display: none; }
 }
 </style>
 </head>
@@ -249,9 +257,10 @@ html,body{
   <div id="scorebug">
     <div id="scorebug-inner">
 
+      <!-- LIVE badge -->
       <div class="live-badge">
         <span class="live-pulse"></span>
-        <span class="live-text">LIVE</span>
+        <span class="live-label">LIVE</span>
       </div>
 
       <!-- Home team -->
@@ -273,7 +282,7 @@ html,body{
 
       <!-- Timer -->
       <div class="timer-block">
-        <span class="clock" id="el-clock">00:00</span>
+        <span class="clock"     id="el-clock">00:00</span>
         <span class="added-tag" id="el-added"></span>
         <span class="state-tag" id="el-state">1H</span>
       </div>
@@ -282,93 +291,125 @@ html,body{
   </div>
 </div>
 
+<!-- ============================================================
+     OVERLAY SYNC ENGINE
+     - Reads state from localStorage (written by controller.html)
+     - storage event = instant cross-tab sync
+     - 300ms poll = fallback for OBS same-origin contexts
+     - RAF loop = smooth clock tick between polls
+     ============================================================ -->
 <script>
-(function(){
+(function () {
   'use strict';
-  const KEY='fbOverlayState';
-  const elHomeName  =document.getElementById('el-home-name');
-  const elAwayName  =document.getElementById('el-away-name');
-  const elHomeScore =document.getElementById('el-home-score');
-  const elAwayScore =document.getElementById('el-away-score');
-  const elHomeSlab  =document.getElementById('el-home-slab');
-  const elAwaySlab  =document.getElementById('el-away-slab');
-  const elClock     =document.getElementById('el-clock');
-  const elAdded     =document.getElementById('el-added');
-  const elState     =document.getElementById('el-state');
-  const root        =document.documentElement;
 
-  let prevHS=-1,prevAS=-1;
-  let localElapsed=0,localRunning=false,localBase=0;
+  const KEY = 'fbOverlayState';
 
-  function fmt(ms){
-    const s=Math.max(0,Math.floor(ms/1000));
-    return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  /* DOM refs */
+  const elHomeName  = document.getElementById('el-home-name');
+  const elAwayName  = document.getElementById('el-away-name');
+  const elHomeScore = document.getElementById('el-home-score');
+  const elAwayScore = document.getElementById('el-away-score');
+  const elClock     = document.getElementById('el-clock');
+  const elAdded     = document.getElementById('el-added');
+  const elState     = document.getElementById('el-state');
+  const root        = document.documentElement;
+
+  /* Track previous scores to detect goals */
+  let prevHS = -1, prevAS = -1;
+
+  /* Local timer state — reconstructed from storage */
+  let localElapsed = 0;
+  let localRunning = false;
+  let localBase    = 0; // performance.now() snapshot at last state load
+
+  /* Format ms → "MM:SS" */
+  function fmt(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
   }
 
-  function bump(el){
+  /* Trigger goal-scored bump animation */
+  function bump(el) {
     el.classList.remove('goal-bump');
-    void el.offsetWidth;
+    void el.offsetWidth; // force reflow to restart animation
     el.classList.add('goal-bump');
-    el.addEventListener('animationend',()=>el.classList.remove('goal-bump'),{once:true});
+    el.addEventListener('animationend', () => el.classList.remove('goal-bump'), { once: true });
   }
 
-  function apply(s){
-    elHomeName.textContent=(s.homeName||'HOME').toUpperCase();
-    elAwayName.textContent=(s.awayName||'AWAY').toUpperCase();
-    root.style.setProperty('--home-color',s.homeColor||'#c8102e');
-    root.style.setProperty('--away-color',s.awayColor||'#003087');
+  /* Apply a full state snapshot from localStorage */
+  function applyState(s) {
+    /* Team names */
+    elHomeName.textContent = (s.homeName || 'HOME').toUpperCase();
+    elAwayName.textContent = (s.awayName || 'AWAY').toUpperCase();
 
-    const hs=parseInt(s.homeScore)||0;
-    const as=parseInt(s.awayScore)||0;
-    if(hs!==prevHS){elHomeScore.textContent=hs;if(prevHS!==-1)bump(elHomeScore);prevHS=hs;}
-    if(as!==prevAS){elAwayScore.textContent=as;if(prevAS!==-1)bump(elAwayScore);prevAS=as;}
+    /* Kit colors → CSS variables */
+    root.style.setProperty('--home-color', s.homeColor || '#c8102e');
+    root.style.setProperty('--away-color', s.awayColor || '#003087');
 
-    // Timer reconstruction
-    localElapsed=parseFloat(s.elapsedMs)||0;
-    localRunning=!!s.running;
-    if(localRunning&&s.wallTime){
-      localElapsed=Math.max(0,localElapsed+(Date.now()-parseInt(s.wallTime)));
+    /* Scores — bump animation on change */
+    const hs = parseInt(s.homeScore) || 0;
+    const as = parseInt(s.awayScore) || 0;
+    if (hs !== prevHS) { elHomeScore.textContent = hs; if (prevHS !== -1) bump(elHomeScore); prevHS = hs; }
+    if (as !== prevAS) { elAwayScore.textContent = as; if (prevAS !== -1) bump(elAwayScore); prevAS = as; }
+
+    /* Timer — reconstruct with wall-clock drift compensation */
+    localElapsed = parseFloat(s.elapsedMs) || 0;
+    localRunning = !!s.running;
+    if (localRunning && s.wallTime) {
+      /* Add the time elapsed since the controller last wrote state */
+      localElapsed = Math.max(0, localElapsed + (Date.now() - parseInt(s.wallTime)));
     }
-    localBase=performance.now();
+    localBase = performance.now();
 
-    // Added time
-    const at=parseInt(s.addedTime)||0;
-    if(at>0){
-      elAdded.textContent='+'+at;
-      elAdded.style.display='inline-flex';
-      elAdded.style.animation='none';
+    /* Added time */
+    const at = parseInt(s.addedTime) || 0;
+    if (at > 0) {
+      elAdded.textContent = '+' + at;
+      elAdded.style.display = 'inline-flex';
+      /* Re-trigger entrance animation if value changed */
+      elAdded.style.animation = 'none';
       void elAdded.offsetWidth;
-      elAdded.style.animation='';
+      elAdded.style.animation = '';
     } else {
-      elAdded.style.display='none';
+      elAdded.style.display = 'none';
     }
 
-    // State
-    const st=s.matchState||'1H';
-    elState.textContent=st;
-    elState.className='state-tag'+(st==='FT'?' ft':'');
+    /* Match state */
+    const st = s.matchState || '1H';
+    elState.textContent = st;
+    elState.className = 'state-tag' + (st === 'FT' ? ' ft' : '');
   }
 
-  function load(){
-    try{const r=localStorage.getItem(KEY);if(r)apply(JSON.parse(r));}catch(e){}
+  /* Load + apply latest state from localStorage */
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) applyState(JSON.parse(raw));
+    } catch (e) { /* silent fail */ }
   }
 
-  (function tick(){
-    if(localRunning){
-      elClock.textContent=fmt(localElapsed+(performance.now()-localBase));
+  /* RAF loop — ticks the clock smoothly between storage polls */
+  (function tick() {
+    if (localRunning) {
+      elClock.textContent = fmt(localElapsed + (performance.now() - localBase));
     }
     requestAnimationFrame(tick);
   })();
 
-  window.addEventListener('storage',e=>{if(e.key===KEY)load();});
-  setInterval(load,300);
+  /* Instant sync via storage event (cross-tab) */
+  window.addEventListener('storage', e => { if (e.key === KEY) load(); });
 
-  document.addEventListener('keydown',e=>{
-    if(e.key==='h'||e.key==='H'){
-      window.open('controller.html','fbCtrl','width=480,height=860,resizable=yes');
+  /* Polling fallback — covers OBS browser source + same-origin iframes */
+  setInterval(load, 300);
+
+  /* H key → open controller popup */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'h' || e.key === 'H') {
+      window.open('controller.html', 'fbCtrl', 'width=480,height=860,resizable=yes');
     }
   });
 
+  /* Initial render */
   load();
 })();
 </script>
