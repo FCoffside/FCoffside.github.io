@@ -254,7 +254,7 @@ footer {
       <div class="col2">
         <div class="tcol home">
           <div class="tcol-hd">Home</div>
-          <input type="text" id="in-home" value="ARS" maxlength="8" placeholder="HOME"/>
+          <input type="text" id="in-home" value="AT마드리드" maxlength="16" placeholder="홈팀"/>
           <div class="color-row">
             <input type="color" id="in-home-color" value="#c8102e"/>
             <span>Kit color</span>
@@ -262,7 +262,7 @@ footer {
         </div>
         <div class="tcol away">
           <div class="tcol-hd">Away</div>
-          <input type="text" id="in-away" value="MCI" maxlength="8" placeholder="AWAY"/>
+          <input type="text" id="in-away" value="아스날" maxlength="16" placeholder="원정팀"/>
           <div class="color-row">
             <input type="color" id="in-away-color" value="#003087"/>
             <span>Kit color</span>
@@ -339,11 +339,22 @@ footer {
     <div class="card-hd">Match State</div>
     <div class="card-body">
       <div class="row state-row">
-        <button class="btn b-state on" data-st="1ST">1ST</button>
+        <button class="btn b-state on" data-st="1H">1H</button>
         <button class="btn b-state"    data-st="HT">HT</button>
-        <button class="btn b-state"    data-st="2ND">2ND</button>
+        <button class="btn b-state"    data-st="2H">2H</button>
         <button class="btn b-state"    data-st="ET">ET</button>
         <button class="btn b-state"    data-st="FT">FT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANNEL / BROADCASTER -->
+  <div class="card">
+    <div class="card-hd">채널 · Channel Logo</div>
+    <div class="card-body">
+      <div class="row">
+        <span class="lbl">채널명</span>
+        <input type="text" id="in-channel" value="SPOTV" maxlength="20" placeholder="SPOTV" style="flex:1"/>
       </div>
     </div>
   </div>
@@ -372,11 +383,12 @@ footer {
   const KEY = 'fbState';
 
   const state = {
-    homeName:  'ARS', awayName:  'MCI',
+    homeName:  'AT마드리드', awayName: '아스날',
     homeColor: '#c8102e', awayColor: '#003087',
     homeScore: 0, awayScore: 0,
     elapsedMs: 0, running: false,
-    addedTime: 0, matchState: '1ST',
+    addedTime: 0, matchState: '1H',
+    channelName: 'SPOTV',
   };
 
   /* Timer engine — performance.now, zero drift */
@@ -449,6 +461,7 @@ footer {
   document.getElementById('in-away').addEventListener('input', function(){ state.awayName = this.value||'AWAY'; push(); });
   document.getElementById('in-home-color').addEventListener('input', function(){ state.homeColor = this.value; push(); });
   document.getElementById('in-away-color').addEventListener('input', function(){ state.awayColor = this.value; push(); });
+  document.getElementById('in-channel').addEventListener('input', function(){ state.channelName = this.value; push(); });
 
   document.querySelectorAll('[data-d]').forEach(btn => {
     btn.addEventListener('click', () => {
