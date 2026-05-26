@@ -182,7 +182,7 @@ input[type=color] {
 .b-ghost:hover { background: rgba(255,255,255,.10); color: var(--tx); }
 
 /* ── Match state buttons ── */
-.state-row { gap: 5px; flex-wrap: nowrap; }
+.state-row { gap: 5px; flex-wrap: wrap; }
 .b-state {
   flex: 1; padding: 7px 4px; font-size: 12px;
   background: var(--s3); color: var(--tx3); border: 1px solid var(--bd);
@@ -339,11 +339,13 @@ footer {
     <div class="card-hd">Match State</div>
     <div class="card-body">
       <div class="row state-row">
-        <button class="btn b-state on" data-st="1H">1H</button>
-        <button class="btn b-state"    data-st="HT">HT</button>
-        <button class="btn b-state"    data-st="2H">2H</button>
-        <button class="btn b-state"    data-st="ET">ET</button>
-        <button class="btn b-state"    data-st="FT">FT</button>
+        <button class="btn b-state on" data-st="전반">전반</button>
+        <button class="btn b-state"    data-st="HT">하프타임</button>
+        <button class="btn b-state"    data-st="후반">후반</button>
+        <button class="btn b-state"    data-st="연장전반">연장전반</button>
+        <button class="btn b-state"    data-st="연장후반">연장후반</button>
+        <button class="btn b-state"    data-st="PSO">승부차기</button>
+        <button class="btn b-state"    data-st="FT">종료</button>
       </div>
     </div>
   </div>
@@ -387,7 +389,7 @@ footer {
     homeColor: '#c8102e', awayColor: '#003087',
     homeScore: 0, awayScore: 0,
     elapsedMs: 0, running: false,
-    addedTime: 0, matchState: '1H',
+    addedTime: 0, matchState: '전반',
     channelName: 'SPOTV',
   };
 
