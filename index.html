@@ -6,15 +6,16 @@
 <title>Football Overlay</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto+Condensed:wght@400;700&family=Noto+Sans+KR:wght@700;900&display=swap" rel="stylesheet"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --home: #c8102e;
   --away: #003087;
-  --fn: 'Oswald', sans-serif;
-  --fb: 'Roboto Condensed', sans-serif;
+  --fn:   'Oswald', sans-serif;
+  --fb:   'Roboto Condensed', sans-serif;
+  --fk:   'Noto Sans KR', sans-serif;
 }
 
 html, body {
@@ -23,244 +24,265 @@ html, body {
   overflow: hidden;
 }
 
-/* ── Overlay anchor ── */
-#overlay {
+/* ═══════════════════════════════════════════════
+   TOP-LEFT: clock + scoreboard (stacked, separated)
+   TOP-RIGHT: channel logo
+   ═══════════════════════════════════════════════ */
+
+/* Shared entrance animation */
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── TOP-LEFT GROUP ── */
+#tl {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 18px;
+  left: 18px;
   display: flex;
-  justify-content: center;
-  padding-top: 20px;
+  flex-direction: column;
+  gap: 5px;           /* the gap that gives SPOTV separation feeling */
   pointer-events: none;
 }
 
-/* ════════════════════════════════════════════════════
-   ESPN CLASSIC SCOREBUG
-   Reference: ESPN Monday Night Football, SportsCenter
-   Thin flat bar — no gradients, no glow, no radius
-   ════════════════════════════════════════════════════ */
-#bug {
-  display: flex;
-  align-items: stretch;
-  height: 48px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.65), 0 1px 3px rgba(0,0,0,0.5);
-  animation: drop .22s ease-out both;
-}
-@keyframes drop { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
-
-/* ── ESPN red LIVE strip — left edge ── */
-.seg-live {
+/* ── CLOCK BAR ──
+   SPOTV style: small dark pill, UCL logo left, time right
+   Reference: 42:38 block in top-left
+*/
+#clock-bar {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: #cc0000;
-  padding: 0 9px 0 7px;
-  /* No radius — ESPN uses hard square edges */
+  height: 34px;
+  background: rgba(10,10,10,0.92);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.55);
+  animation: fadeDown .25s ease-out both;
+  overflow: hidden;
 }
-.live-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #fff;
-  animation: blink 2s ease-in-out infinite;
+
+/* competition badge — left strip (UCL star/logo substitute) */
+.comp-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 100%;
+  background: #1a1a2e;
+  border-right: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
 }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.18} }
-.live-txt {
-  font-family: var(--fb);
-  font-size: 8px; font-weight: 700;
-  letter-spacing: 1.6px; color: #fff; line-height: 1;
+/* UCL-style star */
+.comp-badge svg {
+  width: 18px; height: 18px;
+  opacity: 0.85;
 }
 
-/* ── Home team color slab ── */
-.seg-home {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 80px;
-  padding: 0 14px;
-  background: var(--home);
-  /* Hard right edge — no glow */
-  border-right: 2px solid rgba(0,0,0,0.25);
-}
-
-/* ── Score block — dark neutral center ── */
-.seg-score {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #1a1a1a;
-  padding: 0 6px;
-  gap: 0;
-  min-width: 96px;
-}
-
-/* Score number columns — ESPN stacks a thin team-color tab above each digit */
-.score-unit {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 5px;
-  padding-top: 4px;
-  gap: 2px;
-  height: 100%;
-}
-.score-tab {
-  width: 100%;
-  height: 3px;
-  /* colored by inline style set via JS */
-}
-.score-digit {
-  font-family: var(--fn);
-  font-size: 36px; font-weight: 700;
-  color: #fff;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  min-width: 22px;
-  text-align: center;
-  padding-bottom: 3px;
-}
-.score-digit.bump {
-  animation: goalPop .3s ease-out;
-}
-@keyframes goalPop {
-  0%   { transform:scale(1);    color:#fff; }
-  35%  { transform:scale(1.25); color:#f5c518; }
-  100% { transform:scale(1);    color:#fff; }
-}
-
-.score-sep {
-  font-family: var(--fn);
-  font-size: 22px; font-weight: 500;
-  color: rgba(255,255,255,.22);
-  padding: 0 3px;
-  padding-bottom: 4px; /* align baseline */
-  line-height: 1;
-  align-self: flex-end;
-  user-select: none;
-}
-
-/* ── Away team color slab ── */
-.seg-away {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 80px;
-  padding: 0 14px;
-  background: var(--away);
-  border-left: 2px solid rgba(0,0,0,0.25);
-}
-
-/* Team abbreviation text */
-.team-abbr {
+.clock-val {
   font-family: var(--fn);
   font-size: 20px; font-weight: 700;
   color: #fff;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-/* ── Clock segment — rightmost dark block ── */
-.seg-clock {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #0f0f0f;
-  border-left: 1px solid rgba(255,255,255,.06);
-  padding: 0 13px;
-  min-width: 86px;
-  gap: 1px;
-}
-
-.clock-time {
-  font-family: var(--fn);
-  font-size: 19px; font-weight: 600;
-  color: rgba(255,255,255,.88);
   font-variant-numeric: tabular-nums;
-  letter-spacing: .5px;
+  letter-spacing: 0.5px;
   line-height: 1;
+  padding: 0 14px 0 12px;
   white-space: nowrap;
 }
 
-/* Period label sits below the clock */
-.clock-period {
-  font-family: var(--fb);
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 2px;
-  color: rgba(255,255,255,.32);
-  text-transform: uppercase;
-  line-height: 1;
-}
-.clock-period.ft { color: #f5c518; }
-
-/* Added time inline pill */
-.added-pill {
+/* Added time — inline after clock */
+.added-inline {
   display: none;
   align-items: center;
   background: #f5c518;
   color: #1a1000;
   font-family: var(--fn);
-  font-size: 9px; font-weight: 700;
-  padding: 1px 5px;
-  line-height: 1.4;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 6px;
+  margin-right: 10px;
+  line-height: 1.3;
   white-space: nowrap;
-  margin-top: 1px;
   animation: pillIn .18s ease-out both;
 }
-@keyframes pillIn { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
+@keyframes pillIn {
+  from { transform:scale(.7); opacity:0; }
+  to   { transform:scale(1);  opacity:1; }
+}
 
-/* ── Responsive ── */
-@media (max-width:520px) {
-  #bug { height: 42px; }
-  .seg-home, .seg-away { min-width: 62px; padding: 0 9px; }
-  .team-abbr { font-size: 16px; }
-  .score-digit { font-size: 28px; }
-  .score-sep { font-size: 18px; }
-  .clock-time { font-size: 16px; }
-  .seg-clock { min-width: 72px; padding: 0 9px; }
-  .seg-live { padding: 0 7px 0 5px; }
+/* ── SCOREBOARD ──
+   SPOTV style: [HOME SLAB][SCORE BOX][AWAY SLAB]
+   Home/away slabs contain full team name in Korean broadcast style
+   Score box is dark neutral center
+*/
+#scoreboard {
+  display: flex;
+  align-items: stretch;
+  height: 40px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.60);
+  animation: fadeDown .3s .06s ease-out both;
+}
+
+/* Team slabs */
+.s-home {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 13px;
+  min-width: 90px;
+  background: var(--home);
+  border-right: 2px solid rgba(0,0,0,0.22);
+}
+.s-away {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 13px;
+  min-width: 90px;
+  background: var(--away);
+  border-left: 2px solid rgba(0,0,0,0.22);
+}
+.team-name {
+  font-family: var(--fn);
+  font-size: 17px; font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Score center */
+.s-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  padding: 0 4px;
+  gap: 0;
+  min-width: 80px;
+}
+.s-num {
+  font-family: var(--fn);
+  font-size: 28px; font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  min-width: 18px;
+  text-align: center;
+}
+.s-num.bump {
+  animation: goalPop .32s ease-out;
+}
+@keyframes goalPop {
+  0%   { transform:scale(1);    color:#fff; }
+  35%  { transform:scale(1.28); color:#f5c518; }
+  100% { transform:scale(1);    color:#fff; }
+}
+.s-dash {
+  font-family: var(--fn);
+  font-size: 18px; font-weight: 500;
+  color: rgba(255,255,255,.22);
+  padding: 0 5px;
+  padding-top: 2px;
+  line-height: 1;
+  user-select: none;
+}
+
+/* Period tag — right of score center */
+.s-period {
+  display: flex;
+  align-items: center;
+  padding: 0 9px;
+  background: #0d0d0d;
+  border-left: 1px solid rgba(255,255,255,0.07);
+}
+.period-txt {
+  font-family: var(--fb);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,.35);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.period-txt.ft { color: #f5c518; }
+
+/* ── TOP-RIGHT: CHANNEL LOGO ── */
+#channel-logo {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  pointer-events: none;
+  animation: fadeDown .28s .1s ease-out both;
+}
+
+/* SPOTV wordmark style */
+.channel-wordmark {
+  font-family: var(--fn);
+  font-size: 32px; font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  line-height: 1;
+  /* Italic slant like SPOTV */
+  font-style: italic;
+  /* Subtle text shadow for readability on any background */
+  text-shadow:
+    0 0 20px rgba(0,0,0,0.80),
+    0 1px 3px rgba(0,0,0,0.70),
+    1px 1px 0 rgba(0,0,0,0.50);
+}
+
+/* SPOTV accent — thin colored underline */
+.channel-accent {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: var(--home); /* defaults to home color, JS can set this */
+  margin-top: 4px;
 }
 </style>
 </head>
 <body>
 
-<div id="overlay">
-  <div id="bug">
+<!-- ── TOP LEFT ── -->
+<div id="tl">
 
-    <div class="seg-live">
-      <span class="live-dot"></span>
-      <span class="live-txt">LIVE</span>
+  <!-- Clock bar (SPOTV style: separate from scoreboard) -->
+  <div id="clock-bar">
+    <!-- Competition badge (UCL star SVG) -->
+    <div class="comp-badge" id="el-comp-badge">
+      <!-- UCL-style 8-point star -->
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L13.8 8.2H20.2L15 12L16.8 18.2L12 14.4L7.2 18.2L9 12L3.8 8.2H10.2L12 2Z"
+              fill="#ffffff" opacity="0.9"/>
+      </svg>
     </div>
-
-    <div class="seg-home" id="el-home-slab">
-      <span class="team-abbr" id="el-home-name">ARS</span>
-    </div>
-
-    <div class="seg-score">
-      <div class="score-unit">
-        <div class="score-tab" id="el-home-tab" style="background:#c8102e"></div>
-        <span class="score-digit" id="el-home-score">0</span>
-      </div>
-      <span class="score-sep">–</span>
-      <div class="score-unit">
-        <div class="score-tab" id="el-away-tab" style="background:#003087"></div>
-        <span class="score-digit" id="el-away-score">0</span>
-      </div>
-    </div>
-
-    <div class="seg-away" id="el-away-slab">
-      <span class="team-abbr" id="el-away-name">MCI</span>
-    </div>
-
-    <div class="seg-clock">
-      <span class="clock-time"   id="el-clock">00:00</span>
-      <span class="added-pill"   id="el-added"></span>
-      <span class="clock-period" id="el-period">1ST</span>
-    </div>
-
+    <span class="clock-val" id="el-clock">00:00</span>
+    <span class="added-inline" id="el-added"></span>
   </div>
+
+  <!-- Scoreboard (separate block below clock) -->
+  <div id="scoreboard">
+    <div class="s-home" id="el-home-slab">
+      <span class="team-name" id="el-home-name">AT마드리드</span>
+    </div>
+    <div class="s-score">
+      <span class="s-num" id="el-home-score">0</span>
+      <span class="s-dash">:</span>
+      <span class="s-num" id="el-away-score">0</span>
+    </div>
+    <div class="s-away" id="el-away-slab">
+      <span class="team-name" id="el-away-name">아스날</span>
+    </div>
+    <div class="s-period">
+      <span class="period-txt" id="el-period">1H</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── TOP RIGHT: CHANNEL LOGO ── -->
+<div id="channel-logo">
+  <div class="channel-wordmark" id="el-channel">SPOTV</div>
+  <span class="channel-accent" id="el-channel-accent"></span>
 </div>
 
 <script>
@@ -275,11 +297,12 @@ html, body {
   const elAwayScore = document.getElementById('el-away-score');
   const elHomeSlab  = document.getElementById('el-home-slab');
   const elAwaySlab  = document.getElementById('el-away-slab');
-  const elHomeTab   = document.getElementById('el-home-tab');
-  const elAwayTab   = document.getElementById('el-away-tab');
   const elClock     = document.getElementById('el-clock');
   const elAdded     = document.getElementById('el-added');
   const elPeriod    = document.getElementById('el-period');
+  const elChannel   = document.getElementById('el-channel');
+  const elAccent    = document.getElementById('el-channel-accent');
+  const elBadge     = document.getElementById('el-comp-badge');
 
   let prevHS = -1, prevAS = -1, prevAT = -1;
   let localMs = 0, localRunning = false, localBase = 0;
@@ -297,23 +320,35 @@ html, body {
   }
 
   function apply(s) {
-    elHomeName.textContent = (s.homeName || 'HOME').toUpperCase();
-    elAwayName.textContent = (s.awayName || 'AWAY').toUpperCase();
+    /* Team names — support Korean/any unicode */
+    elHomeName.textContent = s.homeName || 'HOME';
+    elAwayName.textContent = s.awayName || 'AWAY';
 
+    /* Kit colors */
     const hc = s.homeColor || '#c8102e';
     const ac = s.awayColor || '#003087';
     root.style.setProperty('--home', hc);
     root.style.setProperty('--away', ac);
     elHomeSlab.style.background = hc;
     elAwaySlab.style.background = ac;
-    elHomeTab.style.background  = hc;
-    elAwayTab.style.background  = ac;
+    /* accent underline under channel logo follows home color */
+    elAccent.style.background = hc;
 
+    /* Scores */
     const hs = parseInt(s.homeScore) || 0;
     const as = parseInt(s.awayScore) || 0;
-    if (hs !== prevHS) { elHomeScore.textContent = hs; if (prevHS !== -1) bump(elHomeScore); prevHS = hs; }
-    if (as !== prevAS) { elAwayScore.textContent = as; if (prevAS !== -1) bump(elAwayScore); prevAS = as; }
+    if (hs !== prevHS) {
+      elHomeScore.textContent = hs;
+      if (prevHS !== -1) bump(elHomeScore);
+      prevHS = hs;
+    }
+    if (as !== prevAS) {
+      elAwayScore.textContent = as;
+      if (prevAS !== -1) bump(elAwayScore);
+      prevAS = as;
+    }
 
+    /* Timer */
     localMs = parseFloat(s.elapsedMs) || 0;
     localRunning = !!s.running;
     if (localRunning && s.wallTime) {
@@ -321,6 +356,7 @@ html, body {
     }
     localBase = performance.now();
 
+    /* Added time — flicker-safe */
     const at = parseInt(s.addedTime) || 0;
     if (at !== prevAT) {
       prevAT = at;
@@ -335,16 +371,30 @@ html, body {
       }
     }
 
-    const st = s.matchState || '1ST';
+    /* Period */
+    const st = s.matchState || '1H';
     elPeriod.textContent = st;
-    elPeriod.className = 'clock-period' + (st === 'FT' ? ' ft' : '');
+    elPeriod.className = 'period-txt' + (st === 'FT' ? ' ft' : '');
+
+    /* Channel name */
+    if (s.channelName !== undefined) {
+      elChannel.textContent = s.channelName || 'SPOTV';
+    }
+
+    /* Competition badge color */
+    if (s.compColor) {
+      elBadge.style.background = s.compColor;
+    }
   }
 
   function load() {
-    try { const r = localStorage.getItem(KEY); if (r) apply(JSON.parse(r)); } catch(e) {}
+    try {
+      const r = localStorage.getItem(KEY);
+      if (r) apply(JSON.parse(r));
+    } catch(e) {}
   }
 
-  /* Smooth clock tick between storage polls */
+  /* Smooth clock RAF loop */
   (function tick() {
     if (localRunning) {
       elClock.textContent = fmt(localMs + (performance.now() - localBase));
@@ -359,7 +409,7 @@ html, body {
   document.addEventListener('keydown', e => {
     if ((e.key === 'h' || e.key === 'H') && !e.ctrlKey && !e.metaKey) {
       window.open('controller.html', 'fbCtrl',
-        'width=460,height=820,resizable=yes,scrollbars=yes');
+        'width=480,height=900,resizable=yes,scrollbars=yes');
     }
   });
 
